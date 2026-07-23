@@ -90,3 +90,21 @@ export async function toggleFollow(targetUserId: string): Promise<boolean> {
     return true;
   }
 }
+
+export async function updateUserProfile(
+  userId: string,
+  payload: { name: string; bio?: string; avatar_url?: string }
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      name: payload.name.trim(),
+      bio: payload.bio?.trim() || null,
+      avatar_url: payload.avatar_url?.trim() || null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId);
+
+  if (error) throw error;
+}

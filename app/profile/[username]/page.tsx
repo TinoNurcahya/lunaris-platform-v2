@@ -4,8 +4,10 @@ import { use, useEffect, useState } from 'react';
 import { fetchProfileByUsername, toggleFollow } from '@/services/profile';
 import { fetchQuotes } from '@/services/quotes';
 import QuoteCard from '@/components/quote/QuoteCard';
+import EditProfileModal from '@/components/profile/EditProfileModal';
+import AchievementBadges from '@/components/profile/AchievementBadges';
 import { UserProfile, QuoteItem } from '@/types';
-import { Zap, Quote, Calendar, UserPlus, UserCheck, Users } from 'lucide-react';
+import { Zap, Quote, Calendar, UserPlus, UserCheck, Users, Edit3 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 
@@ -17,6 +19,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,7 +72,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const isSelf = currentUserId === profile.id;
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 pb-12">
       
       {/* Profile Banner / Header */}
       <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm">
@@ -94,7 +97,15 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 <p className="text-sm text-indigo-600 font-mono font-medium">@{profile.username}</p>
               </div>
 
-              {!isSelf && (
+              {isSelf ? (
+                <button
+                  onClick={() => setEditModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-full transition-all"
+                >
+                  <Edit3 className="w-4 h-4 text-indigo-600" />
+                  <span>Edit Profil</span>
+                </button>
+              ) : (
                 <button
                   onClick={handleFollowToggle}
                   className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full shadow-sm transition-all ${
@@ -118,14 +129,16 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
               )}
             </div>
 
-            {profile.bio && (
-              <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
+            {profile.bio ? (
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
                 {profile.bio}
               </p>
+            ) : (
+              <p className="text-xs text-slate-400 italic">Belum ada bio singkat.</p>
             )}
 
             {/* Stats Row */}
-            <div className="flex items-center justify-center sm:justify-start gap-6 pt-2 text-xs">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 pt-2 text-xs sm:text-sm">
               <div className="flex items-center gap-1.5 font-bold text-slate-800">
                 <Quote className="w-4 h-4 text-indigo-600" />
                 <span>{profile.quotes_count || 0} Kutipan</span>
@@ -151,6 +164,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         </div>
       </div>
 
+      {/* Achievement Badges Section */}
+      <AchievementBadges profile={profile} />
+
       {/* User Quotes Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -170,6 +186,16 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </div>
         )}
       </div>
+
+      {/* Edit Profile Modal */}
+      {isSelf && (
+        <EditProfileModal
+          profile={profile}
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onProfileUpdated={(updatedProfile) => setProfile(updatedProfile)}
+        />
+      )}
 
     </div>
   );

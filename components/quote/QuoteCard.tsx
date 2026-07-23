@@ -11,11 +11,14 @@ import {
   Music,
   ExternalLink,
   Edit,
-  AlertTriangle
+  AlertTriangle,
+  Copy,
+  Image as ImageIcon
 } from 'lucide-react';
 import { QuoteItem } from '@/types';
 import { toggleVote, toggleBookmark } from '@/services/quotes';
 import ReportDialog from './ReportDialog';
+import QuoteImageModal from './QuoteImageModal';
 import { toast } from 'sonner';
 
 interface QuoteCardProps {
@@ -29,6 +32,7 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
   const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(quote.user_vote || null);
   const [isBookmarked, setIsBookmarked] = useState(quote.is_bookmarked || false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const handleVote = async (type: 'like' | 'dislike') => {
     try {
@@ -65,6 +69,16 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(`${window.location.origin}/quotes/${quote.id}`);
       toast.success('Tautan kutipan berhasil disalin!');
+    }
+  };
+
+  const handleCopyText = () => {
+    if (navigator.clipboard) {
+      const authorText = quote.user?.name ? ` - ${quote.user.name}` : '';
+      const songText = quote.song_title ? ` (🎵 ${quote.song_title})` : '';
+      const textToCopy = `"${quote.content}"${authorText}${songText}\n\n(via Lunarys)`;
+      navigator.clipboard.writeText(textToCopy);
+      toast.success('Teks kutipan berhasil disalin!');
     }
   };
 
@@ -166,8 +180,6 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
           </div>
         )}
 
-
-
         {/* Action Footer Bar */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-sm text-slate-600">
           
@@ -198,8 +210,8 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
             </button>
           </div>
 
-          {/* Comments, Bookmark, Share, Report */}
-          <div className="flex items-center gap-2">
+          {/* Comments, Bookmark, Copy Text, Export Image, Share, Report */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <Link
               href={`/quotes/${quote.id}`}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/80 hover:bg-white hover:text-indigo-600 transition-all font-medium"
@@ -221,9 +233,25 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
             </button>
 
             <button
+              onClick={handleCopyText}
+              className="p-2 rounded-full bg-slate-100/80 border border-slate-200/80 hover:bg-white text-slate-600 hover:text-indigo-600 transition-all"
+              title="Salin Teks Kutipan"
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setImageModalOpen(true)}
+              className="p-2 rounded-full bg-indigo-50 border border-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-600 transition-all"
+              title="Ekspor Gambar Kutipan"
+            >
+              <ImageIcon className="w-4 h-4" />
+            </button>
+
+            <button
               onClick={handleShare}
               className="p-2 rounded-full bg-slate-100/80 border border-slate-200/80 hover:bg-white text-slate-600 hover:text-indigo-600 transition-all"
-              title="Bagikan"
+              title="Bagikan Tautan"
             >
               <Share2 className="w-4 h-4" />
             </button>
@@ -245,6 +273,12 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
         quoteId={quote.id}
         isOpen={reportOpen}
         onClose={() => setReportOpen(false)}
+      />
+
+      <QuoteImageModal
+        quote={quote}
+        isOpen={imageModalOpen}
+        onClose={() => setImageModalOpen(false)}
       />
     </>
   );
