@@ -1,36 +1,443 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <a href="#">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=40&pause=1000&color=6366F1&center=true&vCenter=true&width=800&height=100&lines=Lunarys;Platform+Kutipan+%26+Lirik+Lagu;Bagikan+Inspirasimu" alt="Typing SVG" />
+  </a>
 
-## Getting Started
+  <p align="center">
+    <strong>Platform sosial untuk menulis, membagikan, dan menemukan kutipan inspiratif serta lirik lagu favorit bersama komunitas.</strong>
+  </p>
 
-First, run the development server:
+  <p align="center">
+    <img src="https://img.shields.io/badge/version-v0.1.0--beta-blue.svg?style=for-the-badge" alt="Version">
+    <br>
+    <img src="https://img.shields.io/badge/next.js%2016-%23000000.svg?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
+    <img src="https://img.shields.io/badge/react%2019-%2361DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React">
+    <img src="https://img.shields.io/badge/typescript-%233178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/tailwindcss%20v4-%2306B6D4.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+    <br>
+    <img src="https://img.shields.io/badge/supabase-%233FCF8E.svg?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
+    <img src="https://img.shields.io/badge/framer%20motion-%23E040FB.svg?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion">
+    <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
+    <br>
+    <img src="https://img.shields.io/badge/license-Private-red?style=for-the-badge" alt="License">
+    <img src="https://komarev.com/ghpvc/?username=lunarys-platform&label=Kunjungan%20Proyek&color=6366f1&style=flat-square" alt="Views">
+  </p>
+</div>
+
+<hr>
+
+## Daftar Isi
+
+- [Fitur Utama](#fitur-utama)
+- [Tech Stack](#tech-stack)
+- [Struktur Proyek](#struktur-proyek)
+- [Skema Database](#skema-database)
+- [Prasyarat](#prasyarat)
+- [Instalasi & Setup](#instalasi--setup)
+- [Menjalankan Aplikasi](#menjalankan-aplikasi)
+- [Perintah Umum](#perintah-umum)
+- [Variabel Environment](#variabel-environment)
+- [Arsitektur Aplikasi](#arsitektur-aplikasi)
+- [Halaman & Rute](#halaman--rute)
+- [Komponen](#komponen)
+- [Konvensi Kode](#konvensi-kode)
+- [Lisensi](#lisensi)
+
+---
+
+## Fitur Utama
+
+### Pengguna & Autentikasi
+- **Registrasi & Login** -- Autentikasi email/password melalui Supabase Auth
+- **Profil Pengguna** -- Avatar (DiceBear), bio, statistik pengikut, level & XP
+- **Edit Profil** -- Ubah nama tampilan, username, bio, dan avatar URL
+- **Follow / Unfollow** -- Sistem ikuti antar pengguna dengan daftar pengikut & mengikuti
+- **Pengaturan Akun** -- Ubah kata sandi, preferensi notifikasi, dan privasi profil
+
+### Kutipan & Konten
+- **Buat Kutipan** -- Editor kutipan dengan pemilih kategori dan warna latar
+- **Lampiran Lagu** -- Sertakan judul lagu, artis, cuplikan lirik, dan tautan Spotify
+- **Edit & Hapus** -- Pemilik kutipan dapat mengedit atau menghapus kutipan mereka
+- **Pin Kutipan** -- Sematkan kutipan favorit di bagian atas profil
+- **Kutipan Hari Ini** -- Sorotan kutipan terpilih sebagai Quote of the Day
+- **Reader View** -- Mode baca fokus tanpa gangguan untuk setiap kutipan
+- **Ekspor Gambar** -- Unduh kutipan sebagai gambar dengan pilihan rasio aspek (1:1 / 9:16), gaya font, dan tema gradien
+
+### Interaksi Sosial
+- **Like / Dislike** -- Sistem voting dengan penghitungan otomatis via database trigger
+- **Komentar Berjenjang** -- Komentar dengan dukungan balasan bertingkat (nested replies)
+- **Bookmark** -- Simpan kutipan favorit untuk dibaca nanti
+- **Notifikasi** -- Pemberitahuan real-time untuk like, komentar, follow, dan broadcast admin
+
+### Pencarian & Navigasi
+- **Pencarian Dedicated** -- Halaman pencarian lengkap dengan tab filter (Semua, Kutipan, Pengguna, Lagu)
+- **Command Palette** -- Pencarian cepat global dengan shortcut keyboard (Ctrl+K)
+- **Kategori** -- Jelajahi kutipan berdasarkan kategori dengan ikon dan deskripsi
+- **Filter & Sorting** -- Sortir kutipan berdasarkan terbaru, terpopuler, atau yang menyertakan musik
+
+### Gamifikasi
+- **Sistem XP & Level** -- Pengguna mendapatkan poin pengalaman dari interaksi
+- **Leaderboard** -- Papan peringkat pengguna berdasarkan skor XP dengan visualisasi grafik
+- **Lencana Pencapaian** -- Badge otomatis berdasarkan milestone aktivitas pengguna
+- **Analitik Profil** -- Statistik performa kutipan, tren interaksi, dan distribusi kategori
+
+### Portal Admin
+- **Ringkasan Dashboard** -- Statistik keseluruhan platform dengan sparkline grafik tren
+- **Moderasi Kutipan** -- Tinjau, setujui, tolak, edit, dan hapus kutipan pengguna
+- **Laporan Pengaduan** -- Kelola laporan konten dengan tautan langsung ke kutipan terlaporkan
+- **Kelola Kategori** -- CRUD kategori dengan pemilih ikon, badge warna, dan jumlah kutipan
+- **Kelola Pengguna** -- Daftar semua pengguna, lihat profil, dan ubah peran (user/admin)
+- **Broadcast Pengumuman** -- Kirim notifikasi massal ke seluruh pengguna platform
+
+### Tampilan & UX
+- **Dark / Light Theme** -- Tema gelap dan terang dengan transisi halus, diingat per sesi
+- **Responsive Layout** -- Sidebar navigasi dinamis dengan badge hitungan live
+- **Animasi Halus** -- Micro-interactions menggunakan Framer Motion
+- **Desain Premium** -- Glassmorphism, gradien, dan tipografi modern (Geist Sans/Mono)
+
+---
+
+## Tech Stack
+
+| Layer | Teknologi | Versi |
+|-------|-----------|-------|
+| Framework | Next.js (App Router) | `16.2.11` |
+| UI Library | React / React DOM | `19.2.4` |
+| Styling | Tailwind CSS (PostCSS) | `^4` |
+| Language | TypeScript | `^5` (strict mode) |
+| Database & Auth | Supabase (PostgreSQL + Auth + RLS) | Latest |
+| Animation | Framer Motion | `^12.42.2` |
+| Icons | Lucide React | `^1.25.0` |
+| Toast | Sonner | `^2.0.7` |
+| Image Export | html-to-image | `^1.11.13` |
+| Class Utils | clsx + tailwind-merge | Latest |
+| Linter | ESLint + eslint-config-next | `^9` |
+
+---
+
+## Struktur Proyek
+
+```text
+lunarysv2/
+|-- app/                          # Next.js App Router -- rute & halaman
+|   |-- (auth)/                   # Route group: halaman autentikasi
+|   |   |-- login/page.tsx        # Halaman login
+|   |   |-- register/page.tsx     # Halaman registrasi
+|   |-- admin/                    # Portal admin (dilindungi peran admin)
+|   |   |-- layout.tsx            # Layout admin dengan sidebar navigasi
+|   |   |-- page.tsx              # Dashboard ringkasan admin
+|   |   |-- broadcast/page.tsx    # Broadcast pengumuman
+|   |   |-- categories/page.tsx   # Kelola kategori
+|   |   |-- quotes/page.tsx       # Moderasi kutipan
+|   |   |-- reports/page.tsx      # Laporan pengaduan
+|   |   |-- users/page.tsx        # Kelola pengguna
+|   |-- bookmarks/page.tsx        # Daftar kutipan tersimpan
+|   |-- categories/page.tsx       # Jelajahi semua kategori
+|   |-- leaderboard/page.tsx      # Papan peringkat XP
+|   |-- notifications/page.tsx    # Pusat notifikasi
+|   |-- profile/[username]/       # Halaman profil pengguna
+|   |-- quotes/                   # Rute kutipan
+|   |   |-- create/page.tsx       # Buat kutipan baru
+|   |   |-- [id]/page.tsx         # Detail & komentar kutipan
+|   |   |-- [id]/edit/page.tsx    # Edit kutipan
+|   |-- search/page.tsx           # Pencarian dedicated
+|   |-- settings/page.tsx         # Pengaturan akun
+|   |-- globals.css               # Tailwind v4 @import + CSS custom properties
+|   |-- layout.tsx                # Root layout: font, session, Navbar, Sidebar
+|   |-- page.tsx                  # Beranda -- feed kutipan utama
+|
+|-- components/
+|   |-- layout/                   # Komponen tata letak
+|   |   |-- Navbar.tsx            # Navigasi atas: logo, pencarian, avatar, theme toggle
+|   |   |-- Sidebar.tsx           # Sidebar kiri: menu utama + badge live count
+|   |   |-- Footer.tsx            # Footer halaman
+|   |   |-- CommandPalette.tsx    # Modal pencarian cepat (Ctrl+K)
+|   |-- profile/                  # Komponen profil pengguna
+|   |   |-- AchievementBadges.tsx # Grid lencana pencapaian
+|   |   |-- EditProfileModal.tsx  # Modal edit profil
+|   |   |-- FollowsModal.tsx      # Modal daftar pengikut/mengikuti
+|   |   |-- ProfileAnalytics.tsx  # Statistik & grafik performa profil
+|   |-- quote/                    # Komponen kutipan
+|   |   |-- QuoteCard.tsx         # Kartu kutipan dengan aksi interaksi
+|   |   |-- QuoteImageModal.tsx   # Generator gambar kutipan (ekspor)
+|   |   |-- ReaderViewModal.tsx   # Mode baca fokus
+|   |   |-- ReportDialog.tsx      # Dialog pelaporan kutipan
+|   |-- theme/
+|   |   |-- ThemeProvider.tsx     # Context provider dark/light theme
+|   |-- ui/
+|       |-- ToasterProvider.tsx   # Provider toast notification (Sonner)
+|
+|-- services/                     # Layer data-fetching & business logic
+|   |-- categories.ts             # Query kategori
+|   |-- notifications.ts          # Query & mutasi notifikasi
+|   |-- profile.ts                # Query & mutasi profil pengguna
+|   |-- quotes.ts                 # Query & mutasi kutipan
+|
+|-- types/                        # TypeScript type definitions
+|   |-- database.ts               # Auto-generated Supabase database types
+|   |-- index.ts                  # Shared interfaces (UserProfile, QuoteItem, dll.)
+|
+|-- utils/supabase/               # Supabase client helpers
+|   |-- client.ts                 # Browser client (Client Component)
+|   |-- server.ts                 # Server client (Server Component / API)
+|   |-- middleware.ts             # Supabase auth middleware
+|
+|-- supabase/
+|   |-- schema.sql                # Full database schema, triggers, & RLS policies
+|
+|-- public/                       # Asset statis
+|-- AGENTS.md                     # Pedoman engineering project
+|-- next.config.ts                # Konfigurasi Next.js
+|-- postcss.config.mjs            # PostCSS untuk Tailwind v4
+|-- tsconfig.json                 # Konfigurasi TypeScript (strict)
+|-- eslint.config.mjs             # Konfigurasi ESLint
+|-- package.json                  # Dependencies & scripts
+```
+
+---
+
+## Skema Database
+
+Lunarys menggunakan **Supabase (PostgreSQL)** dengan 8 tabel utama dan Row Level Security (RLS) aktif di semua tabel.
+
+```
+profiles ──────────< quotes >────────── categories
+    |                   |
+    |                   |──────< comments (self-referencing untuk replies)
+    |                   |
+    |                   |──────< votes (like/dislike, unique per user)
+    |                   |
+    |                   |──────< bookmarks (unique per user)
+    |
+    |──────< follows (follower_id -> following_id)
+    |
+    |──────< notifications (sender_id, quote_id opsional)
+```
+
+### Tabel
+
+| Tabel | Deskripsi |
+|-------|-----------|
+| `profiles` | Data pengguna: username, nama, avatar, bio, XP, level, role |
+| `categories` | Kategori kutipan: nama, slug, ikon, warna |
+| `quotes` | Kutipan: konten, lampiran lagu, status moderasi, penghitung interaksi |
+| `comments` | Komentar bertingkat pada kutipan (self-referencing `parent_id`) |
+| `votes` | Like/dislike per pengguna per kutipan (unique constraint) |
+| `bookmarks` | Kutipan yang disimpan pengguna (unique constraint) |
+| `follows` | Relasi follow antar pengguna (unique constraint) |
+| `notifications` | Pemberitahuan: like, komentar, follow, broadcast |
+
+### Database Triggers
+
+- **`on_auth_user_created`** -- Otomatis membuat profil saat pengguna mendaftar
+- **`on_comment_change`** -- Otomatis memperbarui `comments_count` pada tabel quotes
+- **`on_vote_change`** -- Otomatis memperbarui `likes_count` dan `dislikes_count` pada tabel quotes
+
+---
+
+## Prasyarat
+
+Pastikan perangkat telah terinstal:
+
+- **Node.js** >= 18.x
+- **npm** >= 9.x
+- **Akun Supabase** -- [supabase.com](https://supabase.com)
+
+---
+
+## Instalasi & Setup
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/TinoNurcahya/lunaris-platform-v2.git
+cd lunaris-platform-v2
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup Supabase
+
+1. Buat project baru di [Supabase Dashboard](https://app.supabase.com)
+2. Buka **SQL Editor** dan jalankan seluruh isi file `supabase/schema.sql` untuk membuat tabel, trigger, dan RLS policies
+3. Salin **Project URL** dan **anon public key** dari halaman Settings > API
+
+### 4. Konfigurasi environment
+
+Buat file `.env.local` di root project:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+> Jangan pernah commit file `.env.local` ke repository. File ini sudah tercantum di `.gitignore`.
+
+---
+
+## Menjalankan Aplikasi
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) di browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Perintah Umum
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Perintah | Deskripsi |
+|----------|-----------|
+| `npm run dev` | Jalankan development server di `localhost:3000` |
+| `npm run build` | Kompilasi production bundle |
+| `npm run start` | Serve production build |
+| `npm run lint` | Jalankan ESLint (harus 0 error sebelum commit) |
+| `npx tsc --noEmit` | Type-check TypeScript (harus 0 error) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Variabel Environment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variabel | Deskripsi | Wajib |
+|----------|-----------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase | Ya |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon/public key Supabase | Ya |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Arsitektur Aplikasi
+
+Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisahkan tanggung jawab secara jelas:
+
+```text
++--------------------------------------------------+
+|                   app/ (Pages)                    |
+|       Komposisi UI, routing, state halaman        |
++--------------------------------------------------+
+                        |
++--------------------------------------------------+
+|              components/ (UI Layer)               |
+|      Komponen presentasi yang reusable            |
++--------------------------------------------------+
+                        |
++--------------------------------------------------+
+|              services/ (Data Layer)               |
+|   Semua query Supabase & logika bisnis            |
++--------------------------------------------------+
+                        |
++--------------------------------------------------+
+|             utils/supabase/ (Infra)               |
+|       Helper autentikasi & sesi Supabase          |
++--------------------------------------------------+
+                        |
++--------------------------------------------------+
+|                types/ (Contracts)                  |
+|      Interface & type definitions bersama         |
++--------------------------------------------------+
+```
+
+**Aturan penting:**
+- Komponen **tidak boleh** memanggil Supabase secara langsung -- selalu melalui `services/`
+- Server Components digunakan secara default; `'use client'` hanya ditambahkan saat komponen membutuhkan `useState`, `useEffect`, atau event handler
+- Client Components diletakkan sebagai *leaf nodes* -- tidak membungkus pohon besar dalam `'use client'`
+
+---
+
+## Halaman & Rute
+
+| Rute | Tipe | Deskripsi |
+|------|------|-----------|
+| `/` | Public | Beranda -- feed kutipan utama dengan filter & sorting |
+| `/login` | Public | Halaman login |
+| `/register` | Public | Halaman registrasi |
+| `/quotes/create` | Protected | Buat kutipan baru |
+| `/quotes/[id]` | Public | Detail kutipan dengan thread komentar |
+| `/quotes/[id]/edit` | Protected | Edit kutipan (pemilik saja) |
+| `/categories` | Public | Jelajahi semua kategori |
+| `/search` | Public | Pencarian kutipan, pengguna, dan lagu |
+| `/leaderboard` | Public | Papan peringkat XP pengguna |
+| `/profile/[username]` | Public | Halaman profil pengguna |
+| `/bookmarks` | Protected | Kutipan yang disimpan |
+| `/notifications` | Protected | Pusat notifikasi |
+| `/settings` | Protected | Pengaturan akun & keamanan |
+| `/admin` | Admin | Dashboard ringkasan admin |
+| `/admin/quotes` | Admin | Moderasi kutipan |
+| `/admin/reports` | Admin | Laporan pengaduan |
+| `/admin/categories` | Admin | Kelola kategori |
+| `/admin/users` | Admin | Kelola pengguna |
+| `/admin/broadcast` | Admin | Broadcast pengumuman |
+
+---
+
+## Komponen
+
+### Layout
+| Komponen | Deskripsi |
+|----------|-----------|
+| `Navbar` | Navigasi atas dengan logo, search bar, tombol tema, dan menu avatar |
+| `Sidebar` | Sidebar kiri dengan menu navigasi utama dan badge hitungan dinamis |
+| `Footer` | Footer halaman |
+| `CommandPalette` | Modal pencarian cepat global (Ctrl+K) |
+
+### Quote
+| Komponen | Deskripsi |
+|----------|-----------|
+| `QuoteCard` | Kartu kutipan dengan voting, bookmark, komentar, pin, share |
+| `QuoteImageModal` | Generator gambar kutipan dengan opsi rasio, font, dan gradien |
+| `ReaderViewModal` | Mode baca fokus tanpa gangguan |
+| `ReportDialog` | Dialog pelaporan kutipan dengan alasan |
+
+### Profile
+| Komponen | Deskripsi |
+|----------|-----------|
+| `ProfileAnalytics` | Dashboard statistik profil: grafik interaksi, distribusi kategori |
+| `AchievementBadges` | Grid lencana pencapaian berdasarkan milestone |
+| `EditProfileModal` | Modal edit informasi profil |
+| `FollowsModal` | Modal daftar pengikut dan yang diikuti |
+
+### Theme & UI
+| Komponen | Deskripsi |
+|----------|-----------|
+| `ThemeProvider` | Context provider untuk dark/light theme dengan localStorage persistence |
+| `ToasterProvider` | Provider toast notification menggunakan Sonner |
+
+---
+
+## Konvensi Kode
+
+- **TypeScript Strict** -- Tidak ada `any` kecuali benar-benar tidak bisa dihindari
+- **Tailwind CSS v4** -- Utility classes langsung, custom tokens via `@theme inline`
+- **Naming**: PascalCase (komponen), camelCase (fungsi/variabel), UPPER_SNAKE_CASE (konstanta)
+- **Boolean naming**: Prefix `is`, `has`, `can`, `should` (contoh: `isLoading`, `hasError`)
+- **Tanpa emoji** -- Gunakan Lucide React icons, bukan emoji di manapun dalam kode
+- **Commit**: Conventional Commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`)
+- **Error handling**: Setiap operasi async memiliki `try/catch`, pesan error dalam Bahasa Indonesia
+- **Aksesibilitas**: Label ARIA, alt text bermakna, hierarki heading logis, kontras warna WCAG AA
+
+Selengkapnya dapat dibaca di [`AGENTS.md`](./AGENTS.md).
+
+---
+
+## Lisensi
+
+Project ini bersifat privat dan tidak dipublikasikan di bawah lisensi open-source.
+
+---
+
+<p align="center">
+  Dibangun dengan Next.js, Supabase, dan Tailwind CSS.
+</p>
