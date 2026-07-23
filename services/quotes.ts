@@ -3,10 +3,9 @@ import { QuoteItem, CommentItem } from '@/types';
 
 export async function fetchQuotes(options?: {
   categoryId?: number;
-  tag?: string;
-  search?: string;
-  sortBy?: 'latest' | 'popular' | 'of_the_day';
   userId?: string;
+  sortBy?: 'latest' | 'popular' | 'of_the_day' | 'has_song';
+  limit?: number;
 }): Promise<QuoteItem[]> {
   const supabase = createClient();
 
@@ -27,26 +26,50 @@ export async function fetchQuotes(options?: {
     query = query.eq('user_id', options.userId);
   }
 
-  if (options?.search) {
-    query = query.or(`content.ilike.%${options.search}%,song_title.ilike.%${options.search}%,song_artist.ilike.%${options.search}%`);
-  }
-
   if (options?.sortBy === 'popular') {
     query = query.order('likes_count', { ascending: false });
   } else if (options?.sortBy === 'of_the_day') {
     query = query.eq('is_quote_of_day', true);
+  } else if (options?.sortBy === 'has_song') {
+    query = query.not('song_title', 'is', null);
   } else {
     query = query.order('created_at', { ascending: false });
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
   }
 
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching quotes:', error.message || error, error.details, error.hint);
+    console.error('Error fetching quotes:', error);
     return [];
   }
 
-  return (data as QuoteItem[]) || [];
+  let quotes = (data as QuoteItem[]) || [];
+
+  // Check current user votes & bookmarks
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user && quotes.length > 0) {
+    const quoteIds = quotes.map((q) => q.id);
+
+    const [votesRes, bookmarksRes] = await Promise.all([
+      supabase.from('votes').select('quote_id, vote_type').eq('user_id', user.id).in('quote_id', quoteIds),
+      supabase.from('bookmarks').select('quote_id').eq('user_id', user.id).in('quote_id', quoteIds)
+    ]);
+
+    const votesMap = new Map(votesRes.data?.map((v) => [v.quote_id, v.vote_type]));
+    const bookmarksSet = new Set(bookmarksRes.data?.map((b) => b.quote_id));
+
+    quotes = quotes.map((q) => ({
+      ...q,
+      user_vote: (votesMap.get(q.id) as 'like' | 'dislike') || null,
+      is_bookmarked: bookmarksSet.has(q.id)
+    }));
+  }
+
+  return quotes;
 }
 
 export async function fetchQuoteById(id: number): Promise<QuoteItem | null> {
@@ -64,7 +87,20 @@ export async function fetchQuoteById(id: number): Promise<QuoteItem | null> {
 
   if (error || !data) return null;
 
-  return data as QuoteItem;
+  let quote = data as QuoteItem;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const [voteRes, bookmarkRes] = await Promise.all([
+      supabase.from('votes').select('vote_type').eq('user_id', user.id).eq('quote_id', id).maybeSingle(),
+      supabase.from('bookmarks').select('quote_id').eq('user_id', user.id).eq('quote_id', id).maybeSingle()
+    ]);
+
+    quote.user_vote = (voteRes.data?.vote_type as 'like' | 'dislike') || null;
+    quote.is_bookmarked = !!bookmarkRes.data;
+  }
+
+  return quote;
 }
 
 export async function fetchQuoteComments(quoteId: number): Promise<CommentItem[]> {
@@ -83,13 +119,27 @@ export async function fetchQuoteComments(quoteId: number): Promise<CommentItem[]
   return (data as CommentItem[]) || [];
 }
 
-export async function toggleVote(quoteId: number, voteType: 'like' | 'dislike') {
+export async function deleteComment(commentId: number, quoteId: number): Promise<void> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) throw new Error('Silakan login terlebih dahulu');
 
-  // Check existing vote
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+}
+
+export async function toggleVote(quoteId: number, voteType: 'like' | 'dislike'): Promise<void> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Silakan login terlebih dahulu');
+
   const { data: existingVote } = await supabase
     .from('votes')
     .select('*')
@@ -99,41 +149,20 @@ export async function toggleVote(quoteId: number, voteType: 'like' | 'dislike') 
 
   if (existingVote) {
     if (existingVote.vote_type === voteType) {
-      // Remove vote
       await supabase.from('votes').delete().eq('id', existingVote.id);
     } else {
-      // Update vote type
       await supabase.from('votes').update({ vote_type: voteType }).eq('id', existingVote.id);
     }
   } else {
-    // Insert new vote
     await supabase.from('votes').insert({
       user_id: user.id,
       quote_id: quoteId,
       vote_type: voteType
     });
   }
-
-  // Recalculate counts
-  const { count: likes } = await supabase
-    .from('votes')
-    .select('*', { count: 'exact', head: true })
-    .eq('quote_id', quoteId)
-    .eq('vote_type', 'like');
-
-  const { count: dislikes } = await supabase
-    .from('votes')
-    .select('*', { count: 'exact', head: true })
-    .eq('quote_id', quoteId)
-    .eq('vote_type', 'dislike');
-
-  await supabase
-    .from('quotes')
-    .update({ likes_count: likes || 0, dislikes_count: dislikes || 0 })
-    .eq('id', quoteId);
 }
 
-export async function toggleBookmark(quoteId: number) {
+export async function toggleBookmark(quoteId: number): Promise<boolean> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -150,7 +179,32 @@ export async function toggleBookmark(quoteId: number) {
     await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('quote_id', quoteId);
     return false;
   } else {
-    await supabase.from('bookmarks').insert({ user_id: user.id, quote_id: quoteId });
+    await supabase.from('bookmarks').insert({
+      user_id: user.id,
+      quote_id: quoteId
+    });
     return true;
   }
+}
+
+export async function togglePinQuote(quoteId: number, currentPinnedState: boolean): Promise<boolean> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Silakan login terlebih dahulu');
+
+  const newPinnedState = !currentPinnedState;
+
+  if (newPinnedState) {
+    // Unpin other quotes for this user first
+    await supabase.from('quotes').update({ is_pinned: false }).eq('user_id', user.id);
+  }
+
+  const { error } = await supabase
+    .from('quotes')
+    .update({ is_pinned: newPinnedState })
+    .eq('id', quoteId)
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+  return newPinnedState;
 }

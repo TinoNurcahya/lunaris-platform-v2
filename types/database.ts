@@ -85,6 +85,7 @@ export interface Database {
           spotify_url: string | null
           bg_color: string
           is_quote_of_day: boolean
+          is_pinned?: boolean
           status: 'pending' | 'approved' | 'rejected'
           likes_count: number
           dislikes_count: number
@@ -103,6 +104,7 @@ export interface Database {
           spotify_url?: string | null
           bg_color?: string
           is_quote_of_day?: boolean
+          is_pinned?: boolean
           status?: 'pending' | 'approved' | 'rejected'
           likes_count?: number
           dislikes_count?: number
@@ -121,6 +123,7 @@ export interface Database {
           spotify_url?: string | null
           bg_color?: string
           is_quote_of_day?: boolean
+          is_pinned?: boolean
           status?: 'pending' | 'approved' | 'rejected'
           likes_count?: number
           dislikes_count?: number

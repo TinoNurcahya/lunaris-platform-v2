@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import ToasterProvider from "@/components/ui/ToasterProvider";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { createClient } from "@/utils/supabase/server";
 import { Profile } from "@/types";
 
@@ -54,16 +55,18 @@ export default async function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-600 selection:text-white font-sans">
-        <ToasterProvider />
-        <Navbar profile={profile} />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-6 flex-1 flex gap-8">
-          <Sidebar profile={profile} isAdmin={profile?.role === 'admin'} />
-          <main className="flex-1 min-w-0">{children}</main>
-        </div>
+      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-600 selection:text-white font-sans transition-colors duration-200">
+        <ThemeProvider>
+          <ToasterProvider />
+          <Navbar profile={profile} />
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-6 flex-1 flex gap-8">
+            <Sidebar profile={profile} isAdmin={profile?.role === 'admin'} />
+            <main className="flex-1 min-w-0">{children}</main>
+          </div>
 
-        <Footer />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

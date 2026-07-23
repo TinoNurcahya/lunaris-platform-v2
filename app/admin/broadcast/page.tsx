@@ -56,22 +56,22 @@ export default function AdminBroadcastPage() {
   };
 
   if (loading) {
-    return <div className="h-48 rounded-2xl bg-white border border-slate-200 animate-pulse" />;
+    return <div className="h-48 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />;
   }
 
   return (
-    <form onSubmit={handleSendBroadcast} className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4 max-w-xl">
-      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-        <Send className="w-4 h-4 text-indigo-600" />
+    <form onSubmit={handleSendBroadcast} className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 max-w-xl">
+      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <Send className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
         <span>Kirim Broadcast Notifikasi Sistem</span>
       </h4>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-700">Pilih Penerima</label>
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Pilih Penerima</label>
         <select
           value={targetUserId}
           onChange={(e) => setTargetUserId(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-indigo-600"
+          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-600"
         >
           <option value="all">Semua Pengguna Terdaftar ({usersList.length} user)</option>
           {usersList.map((u) => (
@@ -81,18 +81,18 @@ export default function AdminBroadcastPage() {
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-700">Pesan Pengumuman</label>
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Pesan Pengumuman</label>
         <textarea
           rows={4}
           placeholder="Tuliskan pengumuman penting untuk pengguna..."
           value={broadcastMessage}
           onChange={(e) => setBroadcastMessage(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-indigo-600 resize-none"
+          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-600 resize-none"
           required
         />
       </div>
 
-      <button type="submit" className="w-full py-2.5 px-4 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all">
+      <button type="submit" className="w-full py-2.5 px-4 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all cursor-pointer">
         Kirim Notifikasi Sekarang
       </button>
     </form>

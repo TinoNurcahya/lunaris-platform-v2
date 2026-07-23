@@ -18,7 +18,7 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
       title: 'Pemula Inspirasi',
       description: 'Memulai perjalanan berbagi kata di Lunarys',
       icon: Sparkles,
-      color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
+      color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 border-indigo-200 dark:border-indigo-800',
       unlocked: true
     },
     {
@@ -26,7 +26,7 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
       title: 'Pena Emas',
       description: 'Memiliki 3 atau lebih kutipan terpublikasi',
       icon: Feather,
-      color: 'text-amber-600 bg-amber-50 border-amber-200',
+      color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-800',
       unlocked: quotesCount >= 3
     },
     {
@@ -34,7 +34,7 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
       title: 'Bintang Komunitas',
       description: 'Mencapai 50+ XP dari aktivitas kutipan',
       icon: Star,
-      color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+      color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/80 border-yellow-200 dark:border-yellow-800',
       unlocked: xp >= 50
     },
     {
@@ -42,7 +42,7 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
       title: 'Master Kata',
       description: 'Mencapai Level 3 atau lebih tinggi',
       icon: Zap,
-      color: 'text-purple-600 bg-purple-50 border-purple-200',
+      color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/80 border-purple-200 dark:border-purple-800',
       unlocked: level >= 3
     },
     {
@@ -50,7 +50,7 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
       title: 'Moderator Utama',
       description: 'Tim pengelola dan penjaga kualitas platform',
       icon: ShieldCheck,
-      color: 'text-rose-600 bg-rose-50 border-rose-200',
+      color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-800',
       unlocked: profile.role === 'admin'
     }
   ];
@@ -58,13 +58,13 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
   const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Award className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-base font-bold text-slate-900">Lencana Pencapaian</h3>
+          <Award className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">Lencana Pencapaian</h3>
         </div>
-        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">
+        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800 px-3 py-1 rounded-full">
           {unlockedCount} / {badges.length} Terbuka
         </span>
       </div>
@@ -78,15 +78,15 @@ export default function AchievementBadges({ profile }: AchievementBadgesProps) {
               className={`p-3.5 rounded-xl border flex items-start gap-3 transition-all ${
                 badge.unlocked
                   ? `${badge.color} shadow-sm`
-                  : 'bg-slate-50 border-slate-200 opacity-50 grayscale'
+                  : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 opacity-50 grayscale'
               }`}
             >
-              <div className={`p-2 rounded-lg ${badge.unlocked ? 'bg-white shadow-xs' : 'bg-slate-200'}`}>
+              <div className={`p-2 rounded-lg ${badge.unlocked ? 'bg-white dark:bg-slate-900 shadow-xs' : 'bg-slate-200 dark:bg-slate-800'}`}>
                 <Icon className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 truncate">{badge.title}</p>
-                <p className="text-[11px] text-slate-600 leading-tight mt-0.5 line-clamp-2">
+                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{badge.title}</p>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-tight mt-0.5 line-clamp-2">
                   {badge.description}
                 </p>
               </div>

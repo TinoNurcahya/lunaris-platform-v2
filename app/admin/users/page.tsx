@@ -36,7 +36,7 @@ export default function AdminUsersPage() {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 rounded-2xl bg-white border border-slate-200 animate-pulse" />
+          <div key={i} className="h-16 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
         ))}
       </div>
     );
@@ -45,19 +45,19 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-3">
       {usersList.map((u) => (
-        <div key={u.id} className="p-4 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-3 shadow-sm">
+        <div key={u.id} className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
-            <img src={u.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`} alt={u.name} className="w-10 h-10 rounded-full bg-slate-100 object-cover shrink-0" />
+            <img src={u.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`} alt={u.name} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">{u.name} (@{u.username})</p>
-              <p className="text-xs text-slate-500 font-mono">Lvl {u.level} • {u.xp} XP • Role: <span className="font-semibold text-indigo-600">{u.role}</span></p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{u.name} (@{u.username})</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">Lvl {u.level} • {u.xp} XP • Role: <span className="font-semibold text-indigo-600 dark:text-indigo-400">{u.role}</span></p>
             </div>
           </div>
 
           <button
             onClick={() => handleToggleUserRole(u.id, u.role)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shadow-sm transition-all ${
-              u.role === 'admin' ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200' : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer ${
+              u.role === 'admin' ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-800' : 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900 border border-amber-200 dark:border-amber-800'
             }`}
           >
             {u.role === 'admin' ? 'Jadikan User' : 'Jadikan Admin'}

@@ -24,6 +24,8 @@ export interface QuoteItem extends QuoteRow {
 export interface CommentItem extends CommentRow {
   user?: Profile
   is_owner?: boolean
+  parent_id?: number | null
+  replies?: CommentItem[]
 }
 
 export interface NotificationItem extends NotificationRow {

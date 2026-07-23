@@ -1,19 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { fetchQuotes } from '@/services/quotes';
 import { fetchCategories } from '@/services/categories';
 import QuoteCard from '@/components/quote/QuoteCard';
 import { QuoteItem, Category } from '@/types';
-import { Sparkles, Flame, Clock, Compass, Filter } from 'lucide-react';
+import { Sparkles, Flame, Clock, Compass, Filter, Music, Star } from 'lucide-react';
 import Link from 'next/link';
 
-export default function HomePage() {
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const categoryParam = searchParams.get('category');
+
   const [quotes, setQuotes] = useState<QuoteItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
-  const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest');
+  const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'of_the_day' | 'has_song'>('latest');
   const [loading, setLoading] = useState(true);
+
+  // Sync URL searchParam 'category' to state
+  useEffect(() => {
+    if (categoryParam) {
+      const catId = parseInt(categoryParam, 10);
+      if (!isNaN(catId)) {
+        setSelectedCategory(catId);
+      }
+    } else {
+      setSelectedCategory(undefined);
+    }
+  }, [categoryParam]);
 
   useEffect(() => {
     async function loadData() {
@@ -29,13 +46,22 @@ export default function HomePage() {
     loadData();
   }, [selectedCategory, sortBy]);
 
+  const handleSelectCategory = (catId?: number) => {
+    setSelectedCategory(catId);
+    if (catId) {
+      router.push(`/?category=${catId}`);
+    } else {
+      router.push('/');
+    }
+  };
+
   const quoteOfTheDay = quotes.find((q) => q.is_quote_of_day) || quotes[0];
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 min-w-0 w-full max-w-full">
       
       {/* Hero / Quote of the Day Banner */}
-      {quoteOfTheDay && (
+      {quoteOfTheDay && !selectedCategory && (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 p-6 sm:p-8 shadow-lg text-white">
           <div className="relative z-10 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-amber-200 bg-white/10 border border-white/20 rounded-full backdrop-blur-md">
@@ -51,14 +77,14 @@ export default function HomePage() {
               {quoteOfTheDay.user && (
                 <Link
                   href={`/profile/${quoteOfTheDay.user.username}`}
-                  className="text-xs font-medium text-indigo-100 hover:text-white transition-colors"
+                  className="text-xs sm:text-sm font-medium text-indigo-100 hover:text-white transition-colors"
                 >
                   — {quoteOfTheDay.user.name} (@{quoteOfTheDay.user.username})
                 </Link>
               )}
               <Link
                 href={`/quotes/${quoteOfTheDay.id}`}
-                className="text-xs font-semibold text-white hover:underline"
+                className="text-xs sm:text-sm font-semibold text-white hover:underline"
               >
                 Lihat Detail & Komentar →
               </Link>
@@ -67,25 +93,25 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Categories Horizontal Filter Scroll */}
-      <div className="space-y-3">
+      {/* Categories Filter - Responsive Wrap (No Scroll Needed) */}
+      <div className="space-y-3 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-            <Filter className="w-4 h-4 text-indigo-600" />
+          <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <Filter className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Kategori Populer</span>
           </h3>
-          <Link href="/categories" className="text-xs text-indigo-600 hover:underline font-semibold">
+          <Link href="/categories" className="text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-semibold shrink-0">
             Lihat Semua →
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex flex-wrap items-center gap-2 pt-1">
           <button
-            onClick={() => setSelectedCategory(undefined)}
-            className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 ${
+            onClick={() => handleSelectCategory(undefined)}
+            className={`px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-full border transition-all cursor-pointer ${
               selectedCategory === undefined
                 ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
             }`}
           >
             Semua
@@ -93,11 +119,11 @@ export default function HomePage() {
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all shrink-0 ${
+              onClick={() => handleSelectCategory(cat.id)}
+              className={`px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-full border transition-all cursor-pointer ${
                 selectedCategory === cat.id
                   ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                  : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
             >
               {cat.name}
@@ -107,35 +133,63 @@ export default function HomePage() {
       </div>
 
       {/* Sorting Tabs & Feed Header */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <Compass className="w-5 h-5 text-indigo-600" />
-          <span>Jelajahi Kutipan</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4 min-w-0 w-full max-w-full">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 shrink-0">
+          <Compass className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <span>
+            {selectedCategory
+              ? `Kutipan Kategori: ${categories.find((c) => c.id === selectedCategory)?.name || ''}`
+              : 'Jelajahi Kutipan'}
+          </span>
         </h2>
 
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setSortBy('latest')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               sortBy === 'latest'
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Clock className="w-3.5 h-3.5" />
+            <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Terbaru</span>
           </button>
 
           <button
             onClick={() => setSortBy('popular')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               sortBy === 'popular'
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Flame className="w-3.5 h-3.5 text-amber-500" />
+            <Flame className="w-4 h-4 text-amber-500" />
             <span>Populer</span>
+          </button>
+
+          <button
+            onClick={() => setSortBy('of_the_day')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              sortBy === 'of_the_day'
+                ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <span>Pilihan Hari Ini</span>
+          </button>
+
+          <button
+            onClick={() => setSortBy('has_song')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              sortBy === 'has_song'
+                ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Music className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Dengan Musik</span>
           </button>
         </div>
       </div>
@@ -144,17 +198,17 @@ export default function HomePage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-44 rounded-2xl bg-white border border-slate-200 animate-pulse" />
+            <div key={i} className="h-44 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
           ))}
         </div>
       ) : quotes.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
           <Sparkles className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800">Belum Ada Kutipan</h3>
-          <p className="text-xs text-slate-500 mt-1 mb-4">Jadilah orang pertama yang menulis inspirasi di sini!</p>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Belum Ada Kutipan</h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 mb-4">Belum ada kutipan pada kategori ini.</p>
           <Link
             href="/quotes/create"
-            className="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-full hover:bg-indigo-700 transition-all shadow-sm"
+            className="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-full hover:bg-indigo-700 transition-all shadow-sm"
           >
             Buat Kutipan Sekarang
           </Link>
@@ -168,5 +222,13 @@ export default function HomePage() {
       )}
 
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="h-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

@@ -1,86 +1,120 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import {
-  Sparkles,
-  Search,
-  PlusCircle,
-  Bell,
-  Menu,
-  X
-} from 'lucide-react';
-import { Profile } from '@/types';
+import { Sparkles, PlusCircle, Search, Bell, Settings, Sun, Moon } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
+import { UserProfile } from '@/types';
+import CommandPalette from './CommandPalette';
+import { getUnreadNotificationsCount, formatBadgeCount } from '@/services/notifications';
+import { useTheme } from '@/components/theme/ThemeProvider';
 
-interface NavbarProps {
-  profile?: Profile | null;
-}
+export default function Navbar({ profile: propProfile }: { profile?: UserProfile | null }) {
+  const [profile, setProfile] = useState<UserProfile | null>(propProfile || null);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { theme, toggleTheme } = useTheme();
 
-export default function Navbar({ profile }: NavbarProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      if (user) {
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (data) setProfile(data as UserProfile);
+
+        const count = await getUnreadNotificationsCount();
+        setUnreadCount(count);
+      }
     }
-  };
+    loadUser();
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/85 border-b border-slate-200/80 shadow-sm transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <>
+      <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-all">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-white" />
+          {/* Logo & Brand */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-all">
+              <Sparkles className="h-5 w-5" />
             </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">
-              Lunarys
-            </span>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                Lunarys
+              </span>
+              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 -mt-1 font-mono">
+                v2.0 Platform
+              </span>
+            </div>
           </Link>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari kutipan, lagu, atau penulis..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-100/90 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
-            />
-          </form>
+          {/* Search Trigger Button */}
+          <div className="flex-1 max-w-sm mx-4 hidden sm:block">
+            <button
+              onClick={() => setCommandPaletteOpen(true)}
+              className="w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                <span>Cari kutipan, pengguna, atau tag...</span>
+              </div>
+              <kbd className="px-2 py-0.5 text-[10px] font-mono font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-2xs">
+                Ctrl K
+              </kbd>
+            </button>
+          </div>
 
-          {/* User Actions */}
-          <div className="flex items-center gap-3">
+          {/* Right Action Menu */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             {profile ? (
               <>
                 <Link
                   href="/quotes/create"
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <PlusCircle className="w-4 h-4" />
-                  <span>Tulis Kutipan</span>
+                  <span>Buat Kutipan</span>
                 </Link>
 
+                {/* Notifications Link with Numeric Badge */}
                 <Link
                   href="/notifications"
-                  className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors relative"
+                  className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
                   title="Notifikasi"
                 >
                   <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold font-mono text-white bg-rose-500 rounded-full ring-2 ring-white shadow-xs">
+                      {formatBadgeCount(unreadCount)}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Settings Direct Link */}
+                <Link
+                  href="/settings"
+                  className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                  title="Pengaturan Akun"
+                >
+                  <Settings className="w-5 h-5" />
                 </Link>
 
                 {/* Profile Avatar Direct Link */}
                 <Link
                   href={`/profile/${profile.username}`}
-                  className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-100 transition-all"
+                  className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                   title="Lihat Profil Saya"
                 >
                   <img
@@ -89,8 +123,8 @@ export default function Navbar({ profile }: NavbarProps) {
                     className="w-9 h-9 rounded-full bg-slate-200 object-cover ring-2 ring-indigo-500/30"
                   />
                   <div className="hidden lg:block text-left pr-1">
-                    <p className="text-sm font-semibold text-slate-800 max-w-[110px] truncate">{profile.name}</p>
-                    <p className="text-xs text-indigo-600 font-mono font-medium">Lvl {profile.level} • {profile.xp} XP</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">{profile.name}</p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-medium">Lvl {profile.level} • {profile.xp} XP</p>
                   </div>
                 </Link>
               </>
@@ -98,29 +132,28 @@ export default function Navbar({ profile }: NavbarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   Masuk
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 transition-all"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Daftar
                 </Link>
               </div>
             )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
+
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Command Palette Search Modal */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
+    </>
   );
 }

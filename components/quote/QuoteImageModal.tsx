@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { QuoteItem } from '@/types';
-import { Download, X, Sparkles, Image as ImageIcon, Check } from 'lucide-react';
+import { Download, X, Sparkles, Image as ImageIcon, Check, Crop, Type } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
 
@@ -20,8 +20,7 @@ const PRESET_THEMES = [
     textClass: 'text-slate-900',
     authorClass: 'text-indigo-600',
     subTextClass: 'text-slate-500',
-    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-100',
-    accentColor: '#4f46e5'
+    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-100'
   },
   {
     id: 'indigo',
@@ -30,8 +29,7 @@ const PRESET_THEMES = [
     textClass: 'text-white',
     authorClass: 'text-indigo-300',
     subTextClass: 'text-indigo-200/70',
-    badgeClass: 'bg-indigo-800/60 text-indigo-200 border-indigo-700',
-    accentColor: '#818cf8'
+    badgeClass: 'bg-indigo-800/60 text-indigo-200 border-indigo-700'
   },
   {
     id: 'emerald',
@@ -40,8 +38,7 @@ const PRESET_THEMES = [
     textClass: 'text-white',
     authorClass: 'text-emerald-300',
     subTextClass: 'text-emerald-200/70',
-    badgeClass: 'bg-emerald-800/60 text-emerald-200 border-emerald-700',
-    accentColor: '#34d399'
+    badgeClass: 'bg-emerald-800/60 text-emerald-200 border-emerald-700'
   },
   {
     id: 'rose',
@@ -50,13 +47,14 @@ const PRESET_THEMES = [
     textClass: 'text-white',
     authorClass: 'text-rose-300',
     subTextClass: 'text-rose-200/70',
-    badgeClass: 'bg-rose-800/60 text-rose-200 border-rose-700',
-    accentColor: '#fb7185'
+    badgeClass: 'bg-rose-800/60 text-rose-200 border-rose-700'
   }
 ];
 
 export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(PRESET_THEMES[0]);
+  const [aspectRatio, setAspectRatio] = useState<'1:1' | '9:16'>('1:1');
+  const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -74,7 +72,7 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
       });
 
       const link = document.createElement('a');
-      link.download = `lunarys-quote-${quote.id}.png`;
+      link.download = `lunarys-quote-${quote.id}-${aspectRatio === '9:16' ? 'story' : 'post'}.png`;
       link.href = dataUrl;
       link.click();
 
@@ -87,9 +85,15 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
     }
   };
 
+  const getFontClass = () => {
+    if (fontFamily === 'serif') return 'font-serif';
+    if (fontFamily === 'mono') return 'font-mono';
+    return 'font-sans';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-6 my-8 animate-in fade-in zoom-in duration-150">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 my-8 animate-in fade-in zoom-in duration-150">
         
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -99,20 +103,95 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">Ekspor Gambar Kutipan</h3>
-              <p className="text-xs text-slate-500">Pilih tema dan unduh gambar untuk dibagikan.</p>
+              <p className="text-xs text-slate-500">Sesuaikan rasio, tema, dan font sebelum mengunduh.</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Aspect Ratio & Font Selection Controls */}
+        <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+          
+          {/* Aspect Ratio Selector */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+              <Crop className="w-3 h-3 text-indigo-600" />
+              <span>Rasio Kartu</span>
+            </label>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setAspectRatio('1:1')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  aspectRatio === '1:1'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                1:1 (Post)
+              </button>
+              <button
+                onClick={() => setAspectRatio('9:16')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  aspectRatio === '9:16'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                9:16 (Story)
+              </button>
+            </div>
+          </div>
+
+          {/* Font Selector */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+              <Type className="w-3 h-3 text-indigo-600" />
+              <span>Gaya Font</span>
+            </label>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setFontFamily('sans')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  fontFamily === 'sans'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                Sans
+              </button>
+              <button
+                onClick={() => setFontFamily('serif')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-serif font-semibold transition-all cursor-pointer ${
+                  fontFamily === 'serif'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                Serif
+              </button>
+              <button
+                onClick={() => setFontFamily('mono')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer ${
+                  fontFamily === 'mono'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                Mono
+              </button>
+            </div>
+          </div>
+
+        </div>
+
         {/* Theme Presets Selection */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700">Pilih Tema Kartu</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">Pilih Tema Warna</label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {PRESET_THEMES.map((theme) => {
               const isSelected = selectedTheme.id === theme.id;
@@ -120,7 +199,7 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
                 <button
                   key={theme.id}
                   onClick={() => setSelectedTheme(theme)}
-                  className={`p-2.5 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition-all ${
+                  className={`p-2 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
                     isSelected
                       ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900 ring-2 ring-indigo-500/20'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700'
@@ -134,13 +213,15 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
           </div>
         </div>
 
-        {/* Image Preview Card (Rendered & Captured) */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700">Pratinjau Gambar</label>
+        {/* Image Preview Card */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700">Pratinjau Gambar ({aspectRatio})</label>
           
           <div
             ref={cardRef}
-            className={`p-8 rounded-3xl shadow-xl space-y-6 transition-all ${selectedTheme.bgClass}`}
+            className={`p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col justify-between transition-all ${selectedTheme.bgClass} ${
+              aspectRatio === '9:16' ? 'aspect-[9/16] min-h-[420px]' : 'aspect-square min-h-[300px]'
+            }`}
           >
             {/* Top Bar inside Card */}
             <div className="flex items-center justify-between">
@@ -161,15 +242,15 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             </div>
 
             {/* Main Content */}
-            <blockquote className="space-y-2 py-2">
-              <p className={`text-lg sm:text-xl font-medium leading-relaxed italic ${selectedTheme.textClass}`}>
+            <blockquote className="space-y-2 py-4 my-auto">
+              <p className={`text-lg sm:text-xl font-medium leading-relaxed italic ${selectedTheme.textClass} ${getFontClass()}`}>
                 "{quote.content}"
               </p>
             </blockquote>
 
             {/* Song Snippet inside Image if present */}
             {(quote.song_title || quote.song_artist) && (
-              <div className="pt-2 border-t border-white/10 text-xs">
+              <div className="pt-2 mb-3 border-t border-white/10 text-xs">
                 <p className={`font-semibold ${selectedTheme.authorClass}`}>
                   🎵 {quote.song_title || 'Lagu'} — {quote.song_artist || 'Artis'}
                 </p>
@@ -182,7 +263,7 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             )}
 
             {/* Author Footer inside Card */}
-            <div className="flex items-center justify-between pt-4 border-t border-white/10 text-xs">
+            <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs">
               <div className="flex items-center gap-2.5">
                 <img
                   src={quote.user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user?.username || 'anon'}`}
@@ -210,10 +291,10 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
         <button
           onClick={handleDownloadImage}
           disabled={downloading}
-          className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-2xl shadow-lg shadow-indigo-600/25 transition-all"
+          className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-2xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          <span>{downloading ? 'Mengunduh Gambar...' : 'Unduh Gambar PNG'}</span>
+          <span>{downloading ? 'Mengunduh Gambar...' : `Unduh PNG (${aspectRatio})`}</span>
         </button>
 
       </div>

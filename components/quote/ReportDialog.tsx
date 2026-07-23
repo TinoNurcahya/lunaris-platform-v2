@@ -55,22 +55,22 @@ export default function ReportDialog({ quoteId, isOpen, onClose }: ReportDialogP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-rose-600">
+          <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
             <AlertTriangle className="w-5 h-5" />
-            <h3 className="text-base font-bold text-slate-900">Laporkan Kutipan</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Laporkan Kutipan</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
           Bantu kami menjaga komunitas Lunarys tetap sehat. Jelaskan alasan laporan Anda (misal: spam, kata-kata kasar, ciptaan orang lain tanpa kredit).
         </p>
 
@@ -80,7 +80,7 @@ export default function ReportDialog({ quoteId, isOpen, onClose }: ReportDialogP
             placeholder="Tuliskan alasan laporan..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-rose-500 transition-all resize-none"
+            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-rose-500 transition-all resize-none"
             required
           />
 
@@ -88,14 +88,14 @@ export default function ReportDialog({ quoteId, isOpen, onClose }: ReportDialogP
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={submitting || !reason.trim()}
-              className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-sm transition-all"
+              className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-sm transition-all cursor-pointer"
             >
               {submitting ? 'Mengirim...' : 'Kirim Laporan'}
             </button>

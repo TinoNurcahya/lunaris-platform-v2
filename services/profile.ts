@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/client';
 import { UserProfile } from '@/types';
+import { createNotification } from './notifications';
 
 export async function fetchLeaderboard(): Promise<UserProfile[]> {
   const supabase = createClient();
@@ -68,6 +69,28 @@ export async function fetchProfileByUsername(username: string): Promise<UserProf
   } as UserProfile;
 }
 
+export async function fetchFollowers(userId: string): Promise<UserProfile[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('follows')
+    .select('follower:profiles!follower_id(*)')
+    .eq('following_id', userId);
+
+  if (error || !data) return [];
+  return data.map((d: any) => d.follower as UserProfile).filter(Boolean);
+}
+
+export async function fetchFollowing(userId: string): Promise<UserProfile[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('follows')
+    .select('following:profiles!following_id(*)')
+    .eq('follower_id', userId);
+
+  if (error || !data) return [];
+  return data.map((d: any) => d.following as UserProfile).filter(Boolean);
+}
+
 export async function toggleFollow(targetUserId: string): Promise<boolean> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -87,6 +110,15 @@ export async function toggleFollow(targetUserId: string): Promise<boolean> {
     return false;
   } else {
     await supabase.from('follows').insert({ follower_id: user.id, following_id: targetUserId });
+
+    // Send auto notification
+    await createNotification({
+      userId: targetUserId,
+      senderId: user.id,
+      type: 'follow',
+      message: 'mulai mengikutimu'
+    });
+
     return true;
   }
 }
