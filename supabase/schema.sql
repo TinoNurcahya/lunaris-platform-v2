@@ -119,14 +119,43 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 -- --------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  base_username TEXT;
+  final_username TEXT;
+  counter INT := 0;
 BEGIN
+  -- Extract username from metadata or email
+  base_username := LOWER(COALESCE(
+    NEW.raw_user_meta_data->>'username',
+    split_part(NEW.email, '@', 1),
+    'user'
+  ));
+  
+  -- Clean up username (replace non-alphanumeric characters with underscore)
+  base_username := REGEXP_REPLACE(base_username, '[^a-z0-9_]', '', 'g');
+  IF base_username = '' THEN
+    base_username := 'user';
+  END IF;
+
+  final_username := base_username;
+
+  -- Ensure username is unique
+  WHILE EXISTS (SELECT 1 FROM public.profiles WHERE username = final_username) LOOP
+    counter := counter + 1;
+    final_username := base_username || '_' || counter;
+  END LOOP;
+
   INSERT INTO public.profiles (id, username, name, avatar_url)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://api.dicebear.com/7.x/bottts/svg?seed=' || NEW.id::text)
-  );
+    final_username,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture', 'https://api.dicebear.com/7.x/bottts/svg?seed=' || NEW.id::text)
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    avatar_url = COALESCE(public.profiles.avatar_url, EXCLUDED.avatar_url);
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
