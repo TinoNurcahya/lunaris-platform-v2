@@ -56,14 +56,19 @@
 - **Follow / Unfollow** -- Sistem ikuti antar pengguna dengan daftar pengikut & mengikuti
 - **Pengaturan Akun** -- Ubah kata sandi, preferensi notifikasi, dan privasi profil
 
+### Koleksi & Playlist Kutipan
+- **Koleksi Publik & Privat (`/collections`)** -- Buat album/playlist kutipan bertema (seperti Playlist Spotify)
+- **Modal Simpan ke Koleksi** -- Tambah/hapus kutipan dari koleksi atau buat koleksi baru secara instan dari kartu kutipan
+- **Koleksi Bergradien** -- Sampul album dinamis dengan gradien warna pilihan
+
 ### Kutipan & Konten
 - **Buat Kutipan** -- Editor kutipan dengan pemilih kategori dan warna latar
 - **Lampiran Lagu** -- Sertakan judul lagu, artis, cuplikan lirik, dan tautan Spotify (dengan player embed otomatis)
 - **Edit & Hapus** -- Pemilik kutipan dapat mengedit atau menghapus kutipan mereka
 - **Pin Kutipan** -- Sematkan kutipan favorit di bagian atas profil
 - **Kutipan Hari Ini** -- Sorotan kutipan terpilih sebagai Quote of the Day
-- **Reader View** -- Mode baca fokus tanpa gangguan untuk setiap kutipan
-- **Ekspor Gambar** -- Unduh kutipan sebagai gambar dengan pilihan rasio aspek (1:1 / 9:16), gaya font, dan tema gradien
+- **Reader View & Ambient Audio** -- Mode baca fokus tanpa gangguan dilengkapi **Pemutar Audio Suasana** (Hujan Tenang, Ombak Laut, Angin Malam, Lo-Fi Melodi) dengan pengatur volume & animasi wave
+- **Ekspor Gambar & Wallpaper Estetik** -- Unduh kutipan sebagai gambar dengan pilihan rasio (1:1 / 9:16), font, tema gradien, atau **wallpaper foto estetik** + **fitur unggah foto kustom dari galeri sendiri** + pengatur transparansi overlay (opacity)
 
 ### Interaksi Sosial
 - **Like / Dislike** -- Sistem voting dengan penghitungan otomatis via database trigger
@@ -79,7 +84,7 @@
 ### Pencarian & Navigasi
 - **Pencarian Dedicated** -- Halaman pencarian lengkap dengan tab filter (Semua, Kutipan, Pengguna, Lagu)
 - **Command Palette** -- Pencarian cepat global dengan shortcut keyboard (Ctrl+K) dan tombol pencarian mobile
-- **Mobile Bottom Navigation Bar** -- Bar navigasi bawah melayang khusus smartphone untuk akses cepat ke Beranda, Kategori, + Buat, Leaderboard, dan Bookmark
+- **Mobile Bottom Navigation Bar** -- Bar navigasi bawah melayang khusus smartphone untuk akses cepat ke Beranda, Kategori, + Buat, Koleksi, dan Leaderboard
 - **Kategori** -- Jelajahi kutipan berdasarkan kategori dengan ikon dan deskripsi
 - **Filter & Sorting** -- Sortir kutipan berdasarkan terbaru, terpopuler, pilihan hari ini, atau yang menyertakan musik
 
@@ -146,6 +151,9 @@ lunarysv2/
 |   |   |-- callback/route.ts     # Route handler penukaran OAuth code ke session
 |   |-- bookmarks/page.tsx        # Daftar kutipan tersimpan
 |   |-- categories/page.tsx       # Jelajahi semua kategori
+|   |-- collections/              # Rute koleksi & playlist kutipan
+|   |   |-- page.tsx              # Jelajahi koleksi publik & koleksi saya
+|   |   |-- [id]/page.tsx         # Detail koleksi & daftar kutipan
 |   |-- contact/page.tsx          # Halaman Hubungi Kami
 |   |-- faq/page.tsx              # Halaman Pusat Bantuan & FAQ
 |   |-- leaderboard/page.tsx      # Papan peringkat XP
@@ -162,6 +170,8 @@ lunarysv2/
 |   |-- page.tsx                  # Beranda -- feed kutipan utama
 |
 |-- components/
+|   |-- collection/               # Komponen koleksi
+|   |   |-- AddToCollectionModal.tsx # Modal simpan ke koleksi & buat koleksi baru
 |   |-- layout/                   # Komponen tata letak
 |   |   |-- Navbar.tsx            # Navigasi atas: logo, pencarian, avatar, theme toggle
 |   |   |-- Sidebar.tsx           # Sidebar kiri: menu utama + badge live count
@@ -174,9 +184,9 @@ lunarysv2/
 |   |   |-- FollowsModal.tsx      # Modal daftar pengikut/mengikuti
 |   |   |-- ProfileAnalytics.tsx  # Statistik & grafik performa profil
 |   |-- quote/                    # Komponen kutipan
-|   |   |-- QuoteCard.tsx         # Kartu kutipan dengan voting, bookmark, komentar, pin, share
-|   |   |-- QuoteImageModal.tsx   # Generator gambar kutipan (ekspor)
-|   |   |-- ReaderViewModal.tsx   # Mode baca fokus
+|   |   |-- QuoteCard.tsx         # Kartu kutipan dengan voting, bookmark, komentar, pin, koleksi, share
+|   |   |-- QuoteImageModal.tsx   # Generator gambar kutipan dengan wallpaper estetik & unggah foto kustom
+|   |   |-- ReaderViewModal.tsx   # Mode baca fokus dengan pemutar Ambient Audio
 |   |   |-- ReportDialog.tsx      # Dialog pelaporan kutipan
 |   |-- theme/
 |   |   |-- ThemeProvider.tsx     # Context provider dark/light theme
@@ -186,13 +196,14 @@ lunarysv2/
 |-- services/                     # Layer data-fetching & business logic
 |   |-- auth.ts                   # Service autentikasi (Google OAuth, SignOut)
 |   |-- categories.ts             # Query kategori
+|   |-- collections.ts            # Query & mutasi koleksi kutipan
 |   |-- notifications.ts          # Query & mutasi notifikasi
 |   |-- profile.ts                # Query & mutasi profil pengguna
 |   |-- quotes.ts                 # Query & mutasi kutipan
 |
 |-- types/                        # TypeScript type definitions
 |   |-- database.ts               # Auto-generated Supabase database types
-|   |-- index.ts                  # Shared interfaces (UserProfile, QuoteItem, dll.)
+|   |-- index.ts                  # Shared interfaces (UserProfile, QuoteItem, QuoteCollection, dll.)
 |
 |-- utils/supabase/               # Supabase client helpers
 |   |-- client.ts                 # Browser client (Client Component)
@@ -200,7 +211,7 @@ lunarysv2/
 |   |-- middleware.ts             # Supabase auth middleware
 |
 |-- supabase/
-|   |-- schema.sql                # Full database schema, triggers, & RLS policies
+|   |-- schema.sql                # Full database schema, triggers, & RLS policies (termasuk collections)
 |
 |-- public/                       # Asset statis
 |-- AGENTS.md                     # Pedoman engineering project
@@ -215,7 +226,7 @@ lunarysv2/
 
 ## Skema Database
 
-Lunarys menggunakan **Supabase (PostgreSQL)** dengan 8 tabel utama dan Row Level Security (RLS) aktif di semua tabel.
+Lunarys menggunakan **Supabase (PostgreSQL)** dengan 10 tabel utama dan Row Level Security (RLS) aktif di semua tabel.
 
 ```
 profiles ──────────< quotes >────────── categories
@@ -225,6 +236,8 @@ profiles ──────────< quotes >────────── 
     |                   |──────< votes (like/dislike, unique per user)
     |                   |
     |                   |──────< bookmarks (unique per user)
+    |                   |
+    |                   |──────< collection_items >────── collections (user_id -> profiles)
     |
     |──────< follows (follower_id -> following_id)
     |
@@ -241,6 +254,8 @@ profiles ──────────< quotes >────────── 
 | `comments` | Komentar bertingkat pada kutipan (self-referencing `parent_id`) |
 | `votes` | Like/dislike per pengguna per kutipan (unique constraint) |
 | `bookmarks` | Kutipan yang disimpan pengguna (unique constraint) |
+| `collections` | Album / Playlist kutipan pengguna (nama, deskripsi, publik/privat, gradien sampul) |
+| `collection_items` | Relasi kutipan dalam koleksi (unique constraint per collection & quote) |
 | `follows` | Relasi follow antar pengguna (unique constraint) |
 | `notifications` | Pemberitahuan: like, komentar, follow, broadcast |
 
@@ -370,11 +385,6 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 +--------------------------------------------------+
 ```
 
-**Aturan penting:**
-- Komponen **tidak boleh** memanggil Supabase secara langsung -- selalu melalui `services/`
-- Server Components digunakan secara default; `'use client'` hanya ditambahkan saat komponen membutuhkan `useState`, `useEffect`, atau event handler
-- Client Components diletakkan sebagai *leaf nodes* -- tidak membungkus pohon besar dalam `'use client'`
-
 ---
 
 ## Halaman & Rute
@@ -384,6 +394,8 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 | `/` | Public | Beranda -- feed kutipan utama dengan filter & sorting |
 | `/login` | Public | Halaman login (Email + Google OAuth) |
 | `/register` | Public | Halaman registrasi (Email + Google OAuth) |
+| `/collections` | Public | Jelajahi koleksi publik & koleksi saya |
+| `/collections/[id]` | Public | Detail koleksi & daftar kutipan |
 | `/faq` | Public | Halaman Pusat Bantuan & FAQ dengan accordion & pencarian |
 | `/contact` | Public | Halaman Hubungi Kami (Form kontak + Resend Email) |
 | `/quotes/create` | Protected | Buat kutipan baru |
@@ -411,32 +423,23 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 | Komponen | Deskripsi |
 |----------|-----------|
 | `Navbar` | Navigasi atas dengan logo, search bar, tombol tema, dan menu avatar |
-| `Sidebar` | Sidebar kiri dengan menu navigasi utama dan badge hitungan dinamis |
+| `Sidebar` | Sidebar kiri dengan menu navigasi utama dan badge live count |
 | `MobileNav` | Bar navigasi bawah melayang khusus layar smartphone |
 | `Footer` | Footer halaman dengan tautan navigasi lengkap & status Vercel |
 | `CommandPalette` | Modal pencarian cepat global (Ctrl+K) |
 
+### Collection
+| Komponen | Deskripsi |
+|----------|-----------|
+| `AddToCollectionModal` | Modal simpan ke koleksi & buat album koleksi baru |
+
 ### Quote
 | Komponen | Deskripsi |
 |----------|-----------|
-| `QuoteCard` | Kartu kutipan dengan voting, bookmark, komentar, pin, share |
-| `QuoteImageModal` | Generator gambar kutipan dengan opsi rasio, font, dan gradien |
-| `ReaderViewModal` | Mode baca fokus tanpa gangguan |
+| `QuoteCard` | Kartu kutipan dengan voting, bookmark, komentar, pin, koleksi, share |
+| `QuoteImageModal` | Generator gambar kutipan dengan wallpaper foto estetik & slider opacity |
+| `ReaderViewModal` | Mode baca fokus dengan pemutar Ambient Audio Synthesizer |
 | `ReportDialog` | Dialog pelaporan kutipan dengan alasan |
-
-### Profile
-| Komponen | Deskripsi |
-|----------|-----------|
-| `ProfileAnalytics` | Dashboard statistik profil: grafik interaksi, distribusi kategori |
-| `AchievementBadges` | Grid lencana pencapaian berdasarkan milestone |
-| `EditProfileModal` | Modal edit informasi profil |
-| `FollowsModal` | Modal daftar pengikut dan yang diikuti |
-
-### Theme & UI
-| Komponen | Deskripsi |
-|----------|-----------|
-| `ThemeProvider` | Context provider untuk dark/light theme dengan localStorage persistence |
-| `ToasterProvider` | Provider toast notification menggunakan Sonner |
 
 ---
 
@@ -449,7 +452,6 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 - **Tanpa emoji** -- Gunakan Lucide React icons, bukan emoji di manapun dalam kode
 - **Commit**: Conventional Commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`)
 - **Error handling**: Setiap operasi async memiliki `try/catch`, pesan error dalam Bahasa Indonesia
-- **Aksesibilitas**: Label ARIA, alt text bermakna, hierarki heading logis, kontras warna WCAG AA
 
 Selengkapnya dapat dibaca di [`AGENTS.md`](./AGENTS.md).
 

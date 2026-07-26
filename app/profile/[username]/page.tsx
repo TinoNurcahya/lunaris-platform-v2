@@ -113,9 +113,14 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
       <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <img
-            src={profile.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
+            src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
             alt={profile.name}
             className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 object-cover ring-4 ring-indigo-500/20 shrink-0"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`;
+            }}
           />
 
           <div className="space-y-3 text-center sm:text-left flex-1 min-w-0">

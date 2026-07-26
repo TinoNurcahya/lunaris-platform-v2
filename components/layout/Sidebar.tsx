@@ -21,8 +21,10 @@ import {
   Users,
   Send,
   Settings,
-  HelpCircle
+  HelpCircle,
+  FolderHeart
 } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 import { Profile } from '@/types';
 import { signOut } from '@/services/auth';
 import {
@@ -38,9 +40,11 @@ interface SidebarProps {
   isAdmin?: boolean;
 }
 
-export default function Sidebar({ profile, isAdmin }: SidebarProps) {
+export default function Sidebar({ profile: propProfile, isAdmin: propIsAdmin }: SidebarProps) {
   const pathname = usePathname();
 
+  const [profile, setProfile] = useState<Profile | null>(propProfile || null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(propIsAdmin || false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [mainCounts, setMainCounts] = useState({
     bookmarkCount: 0,
@@ -54,15 +58,53 @@ export default function Sidebar({ profile, isAdmin }: SidebarProps) {
   });
 
   useEffect(() => {
+    const supabase = createClient();
+
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (data) {
+          const userProf = data as Profile;
+          setProfile(userProf);
+          const adminCheck = userProf.role === 'admin';
+          setIsAdmin(adminCheck);
+
+          if (adminCheck) {
+            getAdminSidebarCounts().then((counts) => setAdminCounts(counts));
+          }
+        }
+
+        const count = await getUnreadNotificationsCount();
+        setUnreadNotifCount(count);
+      } else {
+        setProfile(null);
+        setIsAdmin(false);
+        setUnreadNotifCount(0);
+      }
+    }
+
     getMainSidebarCounts().then((counts) => setMainCounts(counts));
 
-    if (profile) {
-      getUnreadNotificationsCount().then((count) => setUnreadNotifCount(count));
+    if (!propProfile) {
+      loadUser();
     }
-    if (isAdmin) {
-      getAdminSidebarCounts().then((counts) => setAdminCounts(counts));
-    }
-  }, [profile, isAdmin]);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setProfile(null);
+        setIsAdmin(false);
+        setUnreadNotifCount(0);
+      } else {
+        loadUser();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [propProfile]);
 
   const mainNavItems = [
     {
@@ -79,6 +121,13 @@ export default function Sidebar({ profile, isAdmin }: SidebarProps) {
       badgeCount: mainCounts.categoryCount,
       badgeSuffix: 'Tema',
       badgeColor: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+    },
+    {
+      label: 'Koleksi Kutipan',
+      href: '/collections',
+      icon: FolderHeart,
+      badgeText: 'Album',
+      badgeColor: 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
     },
     {
       label: 'Leaderboard',
@@ -180,9 +229,14 @@ export default function Sidebar({ profile, isAdmin }: SidebarProps) {
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3 transition-colors duration-200">
             <div className="flex items-center gap-3">
               <img
-                src={profile.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
+                src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
                 alt={profile.name}
                 className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover ring-2 ring-indigo-500/30 shrink-0"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`;
+                }}
               />
               <div className="min-w-0 flex-1">
                 <h4 className="text-base font-bold text-slate-900 dark:text-white truncate transition-colors duration-200">{profile.name}</h4>

@@ -14,7 +14,8 @@ import {
   BookOpen,
   ThumbsDown,
   AlertTriangle,
-  Pin
+  Pin,
+  FolderPlus
 } from 'lucide-react';
 import { QuoteItem } from '@/types';
 import { toggleVote, toggleBookmark, togglePinQuote } from '@/services/quotes';
@@ -22,6 +23,7 @@ import { createClient } from '@/utils/supabase/client';
 import ReportDialog from './ReportDialog';
 import QuoteImageModal from './QuoteImageModal';
 import ReaderViewModal from './ReaderViewModal';
+import AddToCollectionModal from '../collection/AddToCollectionModal';
 import { toast } from 'sonner';
 
 interface QuoteCardProps {
@@ -56,6 +58,15 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
   const [reportOpen, setReportOpen] = useState(false);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [readerModalOpen, setReaderModalOpen] = useState(false);
+  const [collectionModalOpen, setCollectionModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIsBookmarked(quote.is_bookmarked || false);
+    setLikesCount(quote.likes_count || 0);
+    setDislikesCount(quote.dislikes_count || 0);
+    setUserVote(quote.user_vote || null);
+    setIsPinned(quote.is_pinned || false);
+  }, [quote]);
 
   useEffect(() => {
     if (currentUserId) {
@@ -143,9 +154,14 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
           {quote.user ? (
             <Link href={`/profile/${quote.user.username}`} className="flex items-center gap-3 group/author">
               <img
-                src={quote.user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user.username}`}
+                src={quote.user.avatar_url?.trim() ? quote.user.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user.username}`}
                 alt={quote.user.name}
                 className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover ring-2 ring-indigo-500/20 group-hover/author:ring-indigo-500 transition-all"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user?.username || 'user'}`;
+                }}
               />
               <div>
                 <h4 className="text-base font-semibold text-slate-900 dark:text-white group-hover/author:text-indigo-600 transition-colors">
@@ -313,11 +329,19 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
             <button
               onClick={handleBookmarkToggle}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                isBookmarked ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/60' : 'hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                isBookmarked ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/60' : 'hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400'
               }`}
               title="Simpan ke Bookmark"
             >
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-amber-500' : ''}`} />
+              <Bookmark className={`w-4 h-4 transition-all ${isBookmarked ? 'fill-amber-500 text-amber-500 scale-105' : ''}`} />
+            </button>
+
+            <button
+              onClick={() => setCollectionModalOpen(true)}
+              className="p-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              title="Tambah ke Koleksi"
+            >
+              <FolderPlus className="w-4 h-4" />
             </button>
 
             <button
@@ -331,6 +355,13 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
 
         </div>
       </div>
+
+      {/* Add To Collection Modal Component */}
+      <AddToCollectionModal
+        quoteId={quote.id}
+        isOpen={collectionModalOpen}
+        onClose={() => setCollectionModalOpen(false)}
+      />
 
       {/* Report Dialog Component */}
       <ReportDialog

@@ -147,9 +147,14 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                   title="Lihat Profil Saya"
                 >
                   <img
-                    src={profile.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
+                    src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
                     alt={profile.name}
                     className="w-9 h-9 rounded-full bg-slate-200 object-cover ring-2 ring-indigo-500/30"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`;
+                    }}
                   />
                   <div className="hidden lg:block text-left pr-1">
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">{profile.name}</p>

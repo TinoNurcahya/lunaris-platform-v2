@@ -32,3 +32,17 @@ export interface NotificationItem extends NotificationRow {
   sender?: Profile
   quote?: QuoteRow
 }
+
+export interface QuoteCollection {
+  id: number
+  user_id: string
+  name: string
+  description?: string | null
+  is_public: boolean
+  cover_gradient: string
+  created_at: string
+  updated_at: string
+  user?: Profile
+  items_count?: number
+  quotes?: QuoteItem[]
+}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Grid, PlusCircle, Trophy, Bookmark } from 'lucide-react';
+import { Home, Grid, PlusCircle, Trophy, FolderHeart } from 'lucide-react';
 
 export default function MobileNav() {
   const pathname = usePathname();
@@ -11,8 +11,8 @@ export default function MobileNav() {
     { label: 'Beranda', href: '/', icon: Home },
     { label: 'Kategori', href: '/categories', icon: Grid },
     { label: 'Buat', href: '/quotes/create', icon: PlusCircle, isPrimary: true },
-    { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
-    { label: 'Bookmark', href: '/bookmarks', icon: Bookmark },
+    { label: 'Koleksi', href: '/collections', icon: FolderHeart },
+    { label: 'Top 20', href: '/leaderboard', icon: Trophy },
   ];
 
   return (

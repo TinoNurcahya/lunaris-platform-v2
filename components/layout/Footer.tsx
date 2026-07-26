@@ -46,6 +46,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/collections" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                  Koleksi & Album Kutipan
+                </Link>
+              </li>
+              <li>
                 <Link href="/leaderboard" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Papan Peringkat (Leaderboard)
                 </Link>
