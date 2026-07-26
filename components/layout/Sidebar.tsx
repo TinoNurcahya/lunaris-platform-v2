@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   Home,
   Grid,
@@ -23,7 +23,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Profile } from '@/types';
-import { createClient } from '@/utils/supabase/client';
+import { signOut } from '@/services/auth';
 import {
   getUnreadNotificationsCount,
   getAdminSidebarCounts,
@@ -39,7 +39,6 @@ interface SidebarProps {
 
 export default function Sidebar({ profile, isAdmin }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
 
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [mainCounts, setMainCounts] = useState({
@@ -153,10 +152,13 @@ export default function Sidebar({ profile, isAdmin }: SidebarProps) {
   ];
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    toast.success('Berhasil keluar');
-    router.refresh();
+    try {
+      await signOut();
+      toast.success('Berhasil keluar');
+      window.location.href = '/login';
+    } catch {
+      toast.error('Gagal keluar');
+    }
   };
 
   const totalAdminPending = adminCounts.pendingQuotes + adminCounts.pendingReports;

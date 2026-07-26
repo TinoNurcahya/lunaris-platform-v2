@@ -16,8 +16,9 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
+    const supabase = createClient();
+
     async function loadUser() {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
@@ -26,10 +27,29 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
 
         const count = await getUnreadNotificationsCount();
         setUnreadCount(count);
+      } else {
+        setProfile(null);
+        setUnreadCount(0);
       }
     }
-    loadUser();
-  }, []);
+
+    if (!propProfile) {
+      loadUser();
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setProfile(null);
+        setUnreadCount(0);
+      } else {
+        loadUser();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [propProfile]);
 
   return (
     <>
