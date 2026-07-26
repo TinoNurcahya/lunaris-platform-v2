@@ -46,8 +46,9 @@ export default function ReportDialog({ quoteId, isOpen, onClose }: ReportDialogP
       toast.success('Laporan Anda telah terkirim ke tim moderasi. Terima kasih!');
       setReason('');
       onClose();
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal mengirim laporan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengirim laporan';
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

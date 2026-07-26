@@ -56,8 +56,9 @@ export default function EditProfileModal({
         avatar_url: avatarUrl.trim()
       });
       onClose();
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal memperbarui profil');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui profil';
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

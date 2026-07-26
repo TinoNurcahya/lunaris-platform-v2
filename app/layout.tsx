@@ -20,8 +20,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lunarys — Platform Kutipan & Lirik Lagu",
-  description: "Bagikan inspirasi, lirik lagu favorit, dan kata-kata mutiara di Lunarys.",
+  title: 'Lunarys — Platform Kutipan & Lirik Lagu',
+  description: 'Bagikan inspirasi, lirik lagu favorit, dan kata-kata mutiara di Lunarys.',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default async function RootLayout({

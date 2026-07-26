@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Outer background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="85%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#9333EA" />
+    </linearGradient>
+
+    <!-- Glowing border gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.1)" />
+    </linearGradient>
+
+    <!-- Crescent Moon Gradient -->
+    <linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#F1F5F9" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+
+    <!-- Sparkle Gold Gradient -->
+    <linearGradient id="sparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter for inner elements -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1E1B4B" flood-opacity="0.4" />
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#818CF8" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)" />
+  
+  <!-- Subtle Inner Glow Border Ring -->
+  <circle cx="256" cy="256" r="234" fill="none" stroke="url(#borderGrad)" stroke-width="8" />
+
+  <!-- Center Graphic Group with Glow Filter -->
+  <g filter="url(#glow)">
+    <!-- Elegant Crescent Moon -->
+    <path 
+      d="M 270 120 C 190 120 125 185 125 265 C 125 345 190 410 270 410 C 235 385 210 330 210 265 C 210 200 235 145 270 120 Z" 
+      fill="url(#moonGrad)" 
+    />
+
+    <!-- Main Sparkle Star (Top Right of Moon) -->
+    <path 
+      d="M 345 140 Q 345 190 395 190 Q 345 190 345 240 Q 345 190 295 190 Q 345 190 345 140 Z" 
+      fill="url(#sparkleGrad)" 
+    />
+
+    <!-- Secondary Sparkle Star (Bottom Right) -->
+    <path 
+      d="M 355 285 Q 355 315 385 315 Q 355 315 355 345 Q 355 315 325 315 Q 355 315 355 285 Z" 
+      fill="#FFFFFF" 
+      opacity="0.95"
+    />
+
+    <!-- Tiny Sparkle (Top Left Accent) -->
+    <path 
+      d="M 195 145 Q 195 160 210 160 Q 195 160 195 175 Q 195 160 180 160 Q 195 160 195 145 Z" 
+      fill="url(#sparkleGrad)" 
+      opacity="0.85"
+    />
+  </g>
+</svg>

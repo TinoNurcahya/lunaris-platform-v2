@@ -77,7 +77,7 @@ export async function fetchFollowers(userId: string): Promise<UserProfile[]> {
     .eq('following_id', userId);
 
   if (error || !data) return [];
-  return data.map((d: any) => d.follower as UserProfile).filter(Boolean);
+  return (data as unknown as Array<{ follower: UserProfile }>).map((d) => d.follower).filter(Boolean);
 }
 
 export async function fetchFollowing(userId: string): Promise<UserProfile[]> {
@@ -88,7 +88,7 @@ export async function fetchFollowing(userId: string): Promise<UserProfile[]> {
     .eq('follower_id', userId);
 
   if (error || !data) return [];
-  return data.map((d: any) => d.following as UserProfile).filter(Boolean);
+  return (data as unknown as Array<{ following: UserProfile }>).map((d) => d.following).filter(Boolean);
 }
 
 export async function toggleFollow(targetUserId: string): Promise<boolean> {

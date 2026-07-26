@@ -9,7 +9,7 @@ interface ProfileAnalyticsProps {
   quotes: QuoteItem[];
 }
 
-export default function ProfileAnalytics({ profile, quotes }: ProfileAnalyticsProps) {
+export default function ProfileAnalytics({ profile: _profile, quotes }: ProfileAnalyticsProps) {
   const totalLikes = quotes.reduce((acc, q) => acc + (q.likes_count || 0), 0);
   const totalDislikes = quotes.reduce((acc, q) => acc + (q.dislikes_count || 0), 0);
   const totalComments = quotes.reduce((acc, q) => acc + (q.comments_count || 0), 0);
@@ -187,7 +187,7 @@ export default function ProfileAnalytics({ profile, quotes }: ProfileAnalyticsPr
                   <div key={q.id} className="space-y-1">
                     <div className="flex items-center justify-between text-xs font-medium text-slate-700 dark:text-slate-300">
                       <span className="truncate max-w-[200px]" title={q.content}>
-                        "{q.content}"
+                        &quot;{q.content}&quot;
                       </span>
                       <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
                         {q.likes_count || 0} Suka
@@ -270,7 +270,7 @@ export default function ProfileAnalytics({ profile, quotes }: ProfileAnalyticsPr
           </div>
 
           <blockquote className="text-base sm:text-lg font-medium italic leading-relaxed">
-            "{topQuote.content}"
+            &quot;{topQuote.content}&quot;
           </blockquote>
 
           <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">

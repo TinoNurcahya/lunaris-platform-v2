@@ -87,7 +87,7 @@ export async function fetchQuoteById(id: number): Promise<QuoteItem | null> {
 
   if (error || !data) return null;
 
-  let quote = data as QuoteItem;
+  const quote = data as QuoteItem;
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
@@ -119,7 +119,7 @@ export async function fetchQuoteComments(quoteId: number): Promise<CommentItem[]
   return (data as CommentItem[]) || [];
 }
 
-export async function deleteComment(commentId: number, quoteId: number): Promise<void> {
+export async function deleteComment(commentId: number, _quoteId?: number): Promise<void> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

@@ -77,7 +77,7 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
       link.click();
 
       toast.success('Gambar kutipan berhasil diunduh!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error generating image:', err);
       toast.error('Gagal mengunduh gambar. Silakan coba lagi.');
     } finally {
@@ -244,7 +244,7 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             {/* Main Content */}
             <blockquote className="space-y-2 py-4 my-auto">
               <p className={`text-lg sm:text-xl font-medium leading-relaxed italic ${selectedTheme.textClass} ${getFontClass()}`}>
-                "{quote.content}"
+                &quot;{quote.content}&quot;
               </p>
             </blockquote>
 
@@ -252,11 +252,11 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             {(quote.song_title || quote.song_artist) && (
               <div className="pt-2 mb-3 border-t border-white/10 text-xs">
                 <p className={`font-semibold ${selectedTheme.authorClass}`}>
-                  🎵 {quote.song_title || 'Lagu'} — {quote.song_artist || 'Artis'}
+                  {quote.song_title || 'Lagu'} &mdash; {quote.song_artist || 'Artis'}
                 </p>
                 {quote.song_lyric_snippet && (
                   <p className={`italic line-clamp-1 mt-0.5 ${selectedTheme.subTextClass}`}>
-                    "{quote.song_lyric_snippet}"
+                    &quot;{quote.song_lyric_snippet}&quot;
                   </p>
                 )}
               </div>

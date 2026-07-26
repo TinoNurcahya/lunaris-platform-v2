@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { UserProfile } from '@/types';
 import { fetchFollowers, fetchFollowing } from '@/services/profile';
-import { X, Users, UserCheck } from 'lucide-react';
+import { X, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface FollowsModalProps {
@@ -15,13 +15,15 @@ interface FollowsModalProps {
 
 export default function FollowsModal({ userId, initialTab = 'followers', isOpen, onClose }: FollowsModalProps) {
   const [activeTab, setActiveTab] = useState<'followers' | 'following'>(initialTab);
+  const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
   const [followers, setFollowers] = useState<UserProfile[]>([]);
   const [following, setFollowing] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  if (initialTab !== prevInitialTab) {
+    setPrevInitialTab(initialTab);
     setActiveTab(initialTab);
-  }, [initialTab]);
+  }
 
   useEffect(() => {
     if (!isOpen) return;

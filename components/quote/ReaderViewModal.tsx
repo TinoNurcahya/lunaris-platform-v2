@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { QuoteItem } from '@/types';
-import { X, BookOpen, Type, Sparkles } from 'lucide-react';
+import { X, BookOpen, Sparkles } from 'lucide-react';
 
 interface ReaderViewModalProps {
   quote: QuoteItem;
@@ -114,7 +114,7 @@ export default function ReaderViewModal({ quote, isOpen, onClose }: ReaderViewMo
 
             {/* Main Quote Text */}
             <blockquote className={`font-medium ${fontSizes[fontSize]} ${theme.fontClass}`}>
-              "{quote.content}"
+              &quot;{quote.content}&quot;
             </blockquote>
 
             {/* Song Snippet if present */}
@@ -124,7 +124,7 @@ export default function ReaderViewModal({ quote, isOpen, onClose }: ReaderViewMo
                   Musik: {quote.song_title || 'Lagu'} — {quote.song_artist || 'Artis'}
                 </p>
                 {quote.song_lyric_snippet && (
-                  <p className="italic mt-1">"{quote.song_lyric_snippet}"</p>
+                  <p className="italic mt-1">&quot;{quote.song_lyric_snippet}&quot;</p>
                 )}
               </div>
             )}

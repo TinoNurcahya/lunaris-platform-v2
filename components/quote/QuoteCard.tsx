@@ -58,19 +58,13 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
   const [readerModalOpen, setReaderModalOpen] = useState(false);
 
   useEffect(() => {
-    setLikesCount(quote.likes_count || 0);
-    setDislikesCount(quote.dislikes_count || 0);
-    setUserVote(quote.user_vote || null);
-    setIsBookmarked(quote.is_bookmarked || false);
-    setIsPinned(quote.is_pinned || false);
-
     if (currentUserId) {
       const supabase = createClient();
       supabase.from('profiles').select('role').eq('id', currentUserId).single().then(({ data }) => {
         if (data?.role === 'admin') setIsAdmin(true);
       });
     }
-  }, [quote.likes_count, quote.dislikes_count, quote.user_vote, quote.is_bookmarked, quote.is_pinned, currentUserId]);
+  }, [currentUserId]);
 
   const spotifyEmbedUrl = getSpotifyEmbedUrl(quote.spotify_url);
 
@@ -90,8 +84,9 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
       }
 
       await toggleVote(quote.id, type);
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal memberikan tanggapan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memberikan tanggapan';
+      toast.error(message);
       setLikesCount(quote.likes_count || 0);
       setDislikesCount(quote.dislikes_count || 0);
       setUserVote(quote.user_vote || null);
@@ -103,8 +98,9 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
       const bookmarked = await toggleBookmark(quote.id);
       setIsBookmarked(bookmarked);
       toast.success(bookmarked ? 'Kutipan disimpan ke Bookmark' : 'Kutipan dihapus dari Bookmark');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal menyimpan bookmark');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal menyimpan bookmark';
+      toast.error(message);
     }
   };
 
@@ -113,8 +109,9 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
       const pinned = await togglePinQuote(quote.id, isPinned);
       setIsPinned(pinned);
       toast.success(pinned ? 'Kutipan disematkan di paling atas profil!' : 'Kutipan dilepas dari sematan profil.');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal menyematkan kutipan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal menyematkan kutipan';
+      toast.error(message);
     }
   };
 
@@ -201,25 +198,25 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
 
         {/* Quote Content */}
         <blockquote className="relative my-4">
-          <p className="text-slate-800 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-normal font-sans italic">
-            "{quote.content}"
+          <p className="text-slate-800 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-normal font-sans italic transition-colors duration-200">
+            &quot;{quote.content}&quot;
           </p>
         </blockquote>
 
         {/* Embedded Song Integration */}
         {(spotifyEmbedUrl || quote.song_title) && (
-          <div className="my-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+          <div className="my-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 space-y-2 transition-colors duration-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                <Music className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-200">
+                <Music className="w-4 h-4 text-emerald-600 dark:text-emerald-400 transition-colors duration-200" />
                 <span>{quote.song_title || 'Lagu Terkait'}</span>
                 {quote.song_artist && <span className="text-slate-400 font-normal">• {quote.song_artist}</span>}
               </div>
             </div>
 
             {quote.song_lyric_snippet && (
-              <p className="text-xs text-slate-600 dark:text-slate-400 italic border-l-2 border-emerald-500 pl-2 py-0.5">
-                "{quote.song_lyric_snippet}"
+              <p className="text-xs text-slate-600 dark:text-slate-400 italic border-l-2 border-emerald-500 pl-2 py-0.5 transition-colors duration-200">
+                &quot;{quote.song_lyric_snippet}&quot;
               </p>
             )}
 
@@ -240,7 +237,7 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
         )}
 
         {/* Card Footer Actions Bar */}
-        <div className="flex items-center justify-between pt-4 mt-2 border-t border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+        <div className="flex items-center justify-between pt-4 mt-2 border-t border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs sm:text-sm transition-colors duration-200">
           
           {/* Like, Dislike & Comment Controls */}
           <div className="flex items-center gap-3">
