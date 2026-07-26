@@ -19,6 +19,7 @@ export interface QuoteItem extends QuoteRow {
   user_vote?: 'like' | 'dislike' | null
   is_bookmarked?: boolean
   is_owner?: boolean
+  mood?: string | null
 }
 
 export interface CommentItem extends CommentRow {

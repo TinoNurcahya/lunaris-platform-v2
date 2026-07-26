@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.quotes (
   song_artist TEXT,
   song_lyric_snippet TEXT,
   spotify_url TEXT,
+  mood TEXT,
   likes_count INT NOT NULL DEFAULT 0,
   dislikes_count INT NOT NULL DEFAULT 0,
   comments_count INT NOT NULL DEFAULT 0,
@@ -53,6 +54,9 @@ CREATE TABLE IF NOT EXISTS public.quotes (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Migration for existing quotes table
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS mood TEXT;
 
 -- --------------------------------------------------------
 -- TABLE 4: COMMENTS

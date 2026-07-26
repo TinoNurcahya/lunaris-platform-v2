@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { fetchQuotes } from '@/services/quotes';
 import { fetchCategories } from '@/services/categories';
+import MoodFilterWidget from '@/components/quote/MoodFilterWidget';
 import QuoteCard from '@/components/quote/QuoteCard';
 import { QuoteItem, Category } from '@/types';
 import { Sparkles, Flame, Clock, Compass, Filter, Music, Star } from 'lucide-react';
@@ -20,13 +21,14 @@ function HomeContent() {
   const [quotes, setQuotes] = useState<QuoteItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'of_the_day' | 'has_song'>('latest');
+  const [selectedMood, setSelectedMood] = useState<string>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       const [quotesData, categoriesData] = await Promise.all([
-        fetchQuotes({ categoryId: selectedCategory, sortBy }),
+        fetchQuotes({ categoryId: selectedCategory, sortBy, mood: selectedMood }),
         fetchCategories()
       ]);
       setQuotes(quotesData);
@@ -34,7 +36,7 @@ function HomeContent() {
       setLoading(false);
     }
     loadData();
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, selectedMood]);
 
   const handleSelectCategory = (catId?: number) => {
     if (catId) {
@@ -81,6 +83,9 @@ function HomeContent() {
           </div>
         </div>
       )}
+
+      {/* Mood Filter Widget ("Bagaimana Perasaanmu Hari Ini?") */}
+      <MoodFilterWidget selectedMood={selectedMood} onSelectMood={setSelectedMood} />
 
       {/* Categories Filter - Responsive Wrap (No Scroll Needed) */}
       <div className="space-y-3 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm transition-colors duration-200">

@@ -24,6 +24,7 @@ import ReportDialog from './ReportDialog';
 import QuoteImageModal from './QuoteImageModal';
 import ReaderViewModal from './ReaderViewModal';
 import AddToCollectionModal from '../collection/AddToCollectionModal';
+import { MOOD_OPTIONS } from './MoodFilterWidget';
 import { toast } from 'sonner';
 
 interface QuoteCardProps {
@@ -181,6 +182,19 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
                 <span>Tersemat</span>
               </span>
             )}
+
+            {quote.mood && (() => {
+              const moodConfig = MOOD_OPTIONS.find((m) => m.id === quote.mood);
+              if (!moodConfig || moodConfig.id === 'all') return null;
+              const MoodIcon = moodConfig.icon;
+
+              return (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full border ${moodConfig.badgeClass}`}>
+                  <MoodIcon className="w-3 h-3" />
+                  <span>{moodConfig.label}</span>
+                </span>
+              );
+            })()}
 
             {quote.category && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800 rounded-full">

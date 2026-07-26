@@ -68,6 +68,7 @@
 - **Pin Kutipan** -- Sematkan kutipan favorit di bagian atas profil
 - **Kutipan Hari Ini** -- Sorotan kutipan terpilih sebagai Quote of the Day
 - **Reader View & Ambient Audio** -- Mode baca fokus tanpa gangguan dilengkapi **Pemutar Audio Suasana** (Hujan Tenang, Ombak Laut, Angin Malam, Lo-Fi Melodi) dengan pengatur volume & animasi wave
+- **Mood Filter ("Bagaimana Perasaanmu Hari Ini?")** -- Saring feed kutipan berdasarkan suasana hati (Semua Mood, Senang, Galau & Sedih, Motivasi, Tenang & Damai, Patah Hati, Romantis) dengan widget interaktif & tag mood pada penciptaan kutipan
 - **Ekspor Gambar & Wallpaper Estetik** -- Unduh kutipan sebagai gambar dengan pilihan rasio (1:1 / 9:16), font, tema gradien, atau **wallpaper foto estetik** + **fitur unggah foto kustom dari galeri sendiri** + pengatur transparansi overlay (opacity)
 
 ### Interaksi Sosial

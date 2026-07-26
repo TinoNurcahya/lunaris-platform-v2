@@ -5,6 +5,7 @@ export async function fetchQuotes(options?: {
   categoryId?: number;
   userId?: string;
   sortBy?: 'latest' | 'popular' | 'of_the_day' | 'has_song';
+  mood?: string;
   limit?: number;
 }): Promise<QuoteItem[]> {
   const supabase = createClient();
@@ -24,6 +25,10 @@ export async function fetchQuotes(options?: {
 
   if (options?.userId) {
     query = query.eq('user_id', options.userId);
+  }
+
+  if (options?.mood && options.mood !== 'all') {
+    query = query.eq('mood', options.mood);
   }
 
   if (options?.sortBy === 'popular') {

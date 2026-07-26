@@ -6,6 +6,7 @@ import { fetchCategories } from '@/services/categories';
 import { Category } from '@/types';
 import { createClient } from '@/utils/supabase/client';
 import { Sparkles, Music, Send, ArrowLeft, Eye } from 'lucide-react';
+import { MOOD_OPTIONS } from '@/components/quote/MoodFilterWidget';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ export default function CreateQuotePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>();
+  const [mood, setMood] = useState<string>('all');
   const [songTitle, setSongTitle] = useState('');
   const [songArtist, setSongArtist] = useState('');
   const [songSnippet, setSongSnippet] = useState('');
@@ -76,6 +78,7 @@ export default function CreateQuotePage() {
           user_id: user.id,
           category_id: categoryId || null,
           content: content.trim(),
+          mood: mood !== 'all' ? mood : null,
           song_title: songTitle.trim() || null,
           song_artist: songArtist.trim() || null,
           song_lyric_snippet: songSnippet.trim() || null,
@@ -163,6 +166,34 @@ export default function CreateQuotePage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Mood Selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Pilih Suasana Hati (Mood)</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {MOOD_OPTIONS.map((m) => {
+                  const Icon = m.icon;
+                  const isSelected = mood === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setMood(m.id)}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                        isSelected
+                          ? `${m.activeClass} border-transparent`
+                          : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+                        <span className="truncate text-[11px]">{m.label}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Optional Song Integration */}
