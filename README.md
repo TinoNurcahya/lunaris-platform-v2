@@ -16,6 +16,7 @@
     <img src="https://img.shields.io/badge/tailwindcss%20v4-%2306B6D4.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
     <br>
     <img src="https://img.shields.io/badge/supabase-%233FCF8E.svg?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
+    <img src="https://img.shields.io/badge/resend-%23000000.svg?style=for-the-badge&logo=resend&logoColor=white" alt="Resend API">
     <img src="https://img.shields.io/badge/framer%20motion-%23E040FB.svg?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion">
     <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
     <br>
@@ -48,7 +49,8 @@
 ## Fitur Utama
 
 ### Pengguna & Autentikasi
-- **Registrasi & Login** -- Autentikasi email/password melalui Supabase Auth
+- **Registrasi & Login Email** -- Autentikasi email/password melalui Supabase Auth
+- **Google OAuth Login** -- Fitur *Sign in with Google* instan 1-klik dengan pembuatan username unik otomatis
 - **Profil Pengguna** -- Avatar (DiceBear), bio, statistik pengikut, level & XP
 - **Edit Profil** -- Ubah nama tampilan, username, bio, dan avatar URL
 - **Follow / Unfollow** -- Sistem ikuti antar pengguna dengan daftar pengikut & mengikuti
@@ -56,7 +58,7 @@
 
 ### Kutipan & Konten
 - **Buat Kutipan** -- Editor kutipan dengan pemilih kategori dan warna latar
-- **Lampiran Lagu** -- Sertakan judul lagu, artis, cuplikan lirik, dan tautan Spotify
+- **Lampiran Lagu** -- Sertakan judul lagu, artis, cuplikan lirik, dan tautan Spotify (dengan player embed otomatis)
 - **Edit & Hapus** -- Pemilik kutipan dapat mengedit atau menghapus kutipan mereka
 - **Pin Kutipan** -- Sematkan kutipan favorit di bagian atas profil
 - **Kutipan Hari Ini** -- Sorotan kutipan terpilih sebagai Quote of the Day
@@ -69,11 +71,17 @@
 - **Bookmark** -- Simpan kutipan favorit untuk dibaca nanti
 - **Notifikasi** -- Pemberitahuan real-time untuk like, komentar, follow, dan broadcast admin
 
+### Bantuan & Hubungi Kami
+- **Pusat Bantuan FAQ (`/faq`)** -- Halaman FAQ interaktif dengan pencarian kata kunci dan filter kategori
+- **Formulir Hubungi Kami (`/contact`)** -- Formulir pengiriman pesan langsung yang terintegrasi dengan **Resend API** untuk penerimaan email ke inbox pengembang
+- **Salin Email 1-Klik** -- Salin alamat email dukungan (`tinonurcahya.ti@gmail.com`) dengan mudah
+
 ### Pencarian & Navigasi
 - **Pencarian Dedicated** -- Halaman pencarian lengkap dengan tab filter (Semua, Kutipan, Pengguna, Lagu)
-- **Command Palette** -- Pencarian cepat global dengan shortcut keyboard (Ctrl+K)
+- **Command Palette** -- Pencarian cepat global dengan shortcut keyboard (Ctrl+K) dan tombol pencarian mobile
+- **Mobile Bottom Navigation Bar** -- Bar navigasi bawah melayang khusus smartphone untuk akses cepat ke Beranda, Kategori, + Buat, Leaderboard, dan Bookmark
 - **Kategori** -- Jelajahi kutipan berdasarkan kategori dengan ikon dan deskripsi
-- **Filter & Sorting** -- Sortir kutipan berdasarkan terbaru, terpopuler, atau yang menyertakan musik
+- **Filter & Sorting** -- Sortir kutipan berdasarkan terbaru, terpopuler, pilihan hari ini, atau yang menyertakan musik
 
 ### Gamifikasi
 - **Sistem XP & Level** -- Pengguna mendapatkan poin pengalaman dari interaksi
@@ -91,7 +99,7 @@
 
 ### Tampilan & UX
 - **Dark / Light Theme** -- Tema gelap dan terang dengan transisi halus, diingat per sesi
-- **Responsive Layout** -- Sidebar navigasi dinamis dengan badge hitungan live
+- **Full Mobile Responsive** -- Desain teroptimasi 100% untuk smartphone, tablet, dan desktop ultra-wide
 - **Animasi Halus** -- Micro-interactions menggunakan Framer Motion
 - **Desain Premium** -- Glassmorphism, gradien, dan tipografi modern (Geist Sans/Mono)
 
@@ -106,6 +114,7 @@
 | Styling | Tailwind CSS (PostCSS) | `^4` |
 | Language | TypeScript | `^5` (strict mode) |
 | Database & Auth | Supabase (PostgreSQL + Auth + RLS) | Latest |
+| Email Service | Resend API | `^4.1.2` |
 | Animation | Framer Motion | `^12.42.2` |
 | Icons | Lucide React | `^1.25.0` |
 | Toast | Sonner | `^2.0.7` |
@@ -121,8 +130,8 @@
 lunarysv2/
 |-- app/                          # Next.js App Router -- rute & halaman
 |   |-- (auth)/                   # Route group: halaman autentikasi
-|   |   |-- login/page.tsx        # Halaman login
-|   |   |-- register/page.tsx     # Halaman registrasi
+|   |   |-- login/page.tsx        # Halaman login (Email + Google OAuth)
+|   |   |-- register/page.tsx     # Halaman registrasi (Email + Google OAuth)
 |   |-- admin/                    # Portal admin (dilindungi peran admin)
 |   |   |-- layout.tsx            # Layout admin dengan sidebar navigasi
 |   |   |-- page.tsx              # Dashboard ringkasan admin
@@ -131,8 +140,14 @@ lunarysv2/
 |   |   |-- quotes/page.tsx       # Moderasi kutipan
 |   |   |-- reports/page.tsx      # Laporan pengaduan
 |   |   |-- users/page.tsx        # Kelola pengguna
+|   |-- api/                      # Route Handlers API Server
+|   |   |-- contact/route.ts      # API Endpoint pengiriman email via Resend
+|   |-- auth/                     # Callback OAuth Supabase
+|   |   |-- callback/route.ts     # Route handler penukaran OAuth code ke session
 |   |-- bookmarks/page.tsx        # Daftar kutipan tersimpan
 |   |-- categories/page.tsx       # Jelajahi semua kategori
+|   |-- contact/page.tsx          # Halaman Hubungi Kami
+|   |-- faq/page.tsx              # Halaman Pusat Bantuan & FAQ
 |   |-- leaderboard/page.tsx      # Papan peringkat XP
 |   |-- notifications/page.tsx    # Pusat notifikasi
 |   |-- profile/[username]/       # Halaman profil pengguna
@@ -143,14 +158,15 @@ lunarysv2/
 |   |-- search/page.tsx           # Pencarian dedicated
 |   |-- settings/page.tsx         # Pengaturan akun
 |   |-- globals.css               # Tailwind v4 @import + CSS custom properties
-|   |-- layout.tsx                # Root layout: font, session, Navbar, Sidebar
+|   |-- layout.tsx                # Root layout: font, session, Navbar, Sidebar, MobileNav
 |   |-- page.tsx                  # Beranda -- feed kutipan utama
 |
 |-- components/
 |   |-- layout/                   # Komponen tata letak
 |   |   |-- Navbar.tsx            # Navigasi atas: logo, pencarian, avatar, theme toggle
 |   |   |-- Sidebar.tsx           # Sidebar kiri: menu utama + badge live count
-|   |   |-- Footer.tsx            # Footer halaman
+|   |   |-- MobileNav.tsx         # Bar navigasi bawah khusus smartphone
+|   |   |-- Footer.tsx            # Footer halaman dengan link navigasi lengkap
 |   |   |-- CommandPalette.tsx    # Modal pencarian cepat (Ctrl+K)
 |   |-- profile/                  # Komponen profil pengguna
 |   |   |-- AchievementBadges.tsx # Grid lencana pencapaian
@@ -158,7 +174,7 @@ lunarysv2/
 |   |   |-- FollowsModal.tsx      # Modal daftar pengikut/mengikuti
 |   |   |-- ProfileAnalytics.tsx  # Statistik & grafik performa profil
 |   |-- quote/                    # Komponen kutipan
-|   |   |-- QuoteCard.tsx         # Kartu kutipan dengan aksi interaksi
+|   |   |-- QuoteCard.tsx         # Kartu kutipan dengan voting, bookmark, komentar, pin, share
 |   |   |-- QuoteImageModal.tsx   # Generator gambar kutipan (ekspor)
 |   |   |-- ReaderViewModal.tsx   # Mode baca fokus
 |   |   |-- ReportDialog.tsx      # Dialog pelaporan kutipan
@@ -168,6 +184,7 @@ lunarysv2/
 |       |-- ToasterProvider.tsx   # Provider toast notification (Sonner)
 |
 |-- services/                     # Layer data-fetching & business logic
+|   |-- auth.ts                   # Service autentikasi (Google OAuth, SignOut)
 |   |-- categories.ts             # Query kategori
 |   |-- notifications.ts          # Query & mutasi notifikasi
 |   |-- profile.ts                # Query & mutasi profil pengguna
@@ -229,7 +246,7 @@ profiles ──────────< quotes >────────── 
 
 ### Database Triggers
 
-- **`on_auth_user_created`** -- Otomatis membuat profil saat pengguna mendaftar
+- **`on_auth_user_created`** -- Otomatis membuat profil unik saat pengguna mendaftar (termasuk via Google OAuth)
 - **`on_comment_change`** -- Otomatis memperbarui `comments_count` pada tabel quotes
 - **`on_vote_change`** -- Otomatis memperbarui `likes_count` dan `dislikes_count` pada tabel quotes
 
@@ -242,6 +259,7 @@ Pastikan perangkat telah terinstal:
 - **Node.js** >= 18.x
 - **npm** >= 9.x
 - **Akun Supabase** -- [supabase.com](https://supabase.com)
+- **Akun Resend (Opsional)** -- [resend.com](https://resend.com) untuk fitur pengiriman email kontak
 
 ---
 
@@ -273,6 +291,7 @@ Buat file `.env.local` di root project:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
 ```
 
 > Jangan pernah commit file `.env.local` ke repository. File ini sudah tercantum di `.gitignore`.
@@ -316,6 +335,7 @@ npm run start
 |----------|-----------|-------|
 | `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase | Ya |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon/public key Supabase | Ya |
+| `RESEND_API_KEY` | API Key pengiriman email kontak dari Resend.com | Opsional |
 
 ---
 
@@ -362,8 +382,10 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 | Rute | Tipe | Deskripsi |
 |------|------|-----------|
 | `/` | Public | Beranda -- feed kutipan utama dengan filter & sorting |
-| `/login` | Public | Halaman login |
-| `/register` | Public | Halaman registrasi |
+| `/login` | Public | Halaman login (Email + Google OAuth) |
+| `/register` | Public | Halaman registrasi (Email + Google OAuth) |
+| `/faq` | Public | Halaman Pusat Bantuan & FAQ dengan accordion & pencarian |
+| `/contact` | Public | Halaman Hubungi Kami (Form kontak + Resend Email) |
 | `/quotes/create` | Protected | Buat kutipan baru |
 | `/quotes/[id]` | Public | Detail kutipan dengan thread komentar |
 | `/quotes/[id]/edit` | Protected | Edit kutipan (pemilik saja) |
@@ -390,7 +412,8 @@ Lunarys mengikuti pola arsitektur berlapis (*layered architecture*) untuk memisa
 |----------|-----------|
 | `Navbar` | Navigasi atas dengan logo, search bar, tombol tema, dan menu avatar |
 | `Sidebar` | Sidebar kiri dengan menu navigasi utama dan badge hitungan dinamis |
-| `Footer` | Footer halaman |
+| `MobileNav` | Bar navigasi bawah melayang khusus layar smartphone |
+| `Footer` | Footer halaman dengan tautan navigasi lengkap & status Vercel |
 | `CommandPalette` | Modal pencarian cepat global (Ctrl+K) |
 
 ### Quote
@@ -439,5 +462,5 @@ Project ini bersifat privat dan tidak dipublikasikan di bawah lisensi open-sourc
 ---
 
 <p align="center">
-  Dibangun dengan Next.js, Supabase, dan Tailwind CSS.
+  Dibangun dengan Next.js, Supabase, Resend, dan Tailwind CSS.
 </p>

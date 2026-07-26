@@ -55,6 +55,16 @@ export default function Footer() {
                   Kutipan Tersimpan
                 </Link>
               </li>
+              <li>
+                <Link href="/faq" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                  Pertanyaan Umum (FAQ)
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                  Hubungi Kami
+                </Link>
+              </li>
             </ul>
           </div>
 

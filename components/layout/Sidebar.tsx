@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Users,
   Send,
-  Settings
+  Settings,
+  HelpCircle
 } from 'lucide-react';
 import { Profile } from '@/types';
 import { signOut } from '@/services/auth';
@@ -101,6 +102,13 @@ export default function Sidebar({ profile, isAdmin }: SidebarProps) {
       badgeCount: unreadNotifCount,
       badgeColor: unreadNotifCount > 0 ? 'bg-rose-500 text-white animate-pulse shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
       emptyText: '0 Baru'
+    },
+    {
+      label: 'Pusat Bantuan FAQ',
+      href: '/faq',
+      icon: HelpCircle,
+      badgeText: 'Bantuan',
+      badgeColor: 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
     },
   ];
 
