@@ -23,6 +23,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Lunarys — Platform Kutipan & Lirik Lagu',
   description: 'Bagikan inspirasi, lirik lagu favorit, dan kata-kata mutiara di Lunarys.',
+  verification: {
+    google: 'qRcUhVxFJqfZWasUslN3sqwooMZbj2xl3938wvu2bEU',
+  },
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
