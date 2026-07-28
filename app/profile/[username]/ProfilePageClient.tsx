@@ -9,7 +9,7 @@ import AchievementBadges from '@/components/profile/AchievementBadges';
 import ProfileAnalytics from '@/components/profile/ProfileAnalytics';
 import FollowsModal from '@/components/profile/FollowsModal';
 import { UserProfile, QuoteItem } from '@/types';
-import { Zap, Quote, Calendar, UserPlus, UserCheck, Users, Edit3, Award, BarChart3, Clock, Flame, Music, Filter, Tag } from 'lucide-react';
+import { Zap, Quote, Calendar, UserPlus, UserCheck, Users, Edit3, Award, BarChart3, Clock, Flame, Music, Tag } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 
