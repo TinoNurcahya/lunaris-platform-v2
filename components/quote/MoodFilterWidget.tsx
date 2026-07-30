@@ -68,8 +68,6 @@ interface MoodFilterWidgetProps {
 }
 
 export default function MoodFilterWidget({ selectedMood, onSelectMood }: MoodFilterWidgetProps) {
-  const activeObj = MOOD_OPTIONS.find((m) => m.id === selectedMood) || MOOD_OPTIONS[0];
-
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3 transition-all">
       {/* Header Widget */}

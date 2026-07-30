@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: '%s | Lunarys',
   },
   description:
-    'Temukan, bagikan, dan simpan kutipan inspiratif, lirik lagu favorit, dan kata-kata mutiara dari komunitas Lunarys.',
+    'Temukan ribuan kutipan inspiratif, lirik lagu, dan kata-kata mutiara dari berbagai kategori. Bagikan inspirasi setiap hari bersama Lunarys.',
   keywords: [
     'kutipan',
     'lirik lagu',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     siteName: 'Lunarys',
     title: 'Lunarys — Platform Kutipan & Lirik Lagu',
     description:
-      'Temukan, bagikan, dan simpan kutipan inspiratif, lirik lagu favorit, dan kata-kata mutiara dari komunitas Lunarys.',
+      'Temukan ribuan kutipan inspiratif, lirik lagu, dan kata-kata mutiara dari berbagai kategori. Bagikan inspirasi setiap hari bersama Lunarys.',
     images: [
       {
         url: `${BASE_URL}/og-image.png`,
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Lunarys — Platform Kutipan & Lirik Lagu',
     description:
-      'Temukan, bagikan, dan simpan kutipan inspiratif, lirik lagu favorit, dan kata-kata mutiara dari komunitas Lunarys.',
+      'Temukan ribuan kutipan inspiratif, lirik lagu, dan kata-kata mutiara dari berbagai kategori. Bagikan inspirasi setiap hari bersama Lunarys.',
     images: [`${BASE_URL}/og-image.png`],
   },
   verification: {
@@ -97,7 +97,7 @@ const websiteSchema = {
   name: 'Lunarys',
   url: BASE_URL,
   description:
-    'Platform kutipan inspiratif, lirik lagu, dan kata-kata mutiara dari komunitas Indonesia.',
+    'Temukan ribuan kutipan inspiratif, lirik lagu, dan kata-kata mutiara dari berbagai kategori. Bagikan inspirasi setiap hari bersama Lunarys.',
   inLanguage: 'id-ID',
   potentialAction: {
     '@type': 'SearchAction',

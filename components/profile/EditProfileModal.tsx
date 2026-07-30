@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { UserProfile } from '@/types';
 import { updateUserProfile } from '@/services/profile';
 import { X, User, Sparkles, RefreshCw } from 'lucide-react';
@@ -89,9 +90,12 @@ export default function EditProfileModal({
 
         {/* Avatar Preview & Randomizer */}
         <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-          <img
+          <Image
             src={avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
             alt="Preview Avatar"
+            width={80}
+            height={80}
+            unoptimized
             className="w-20 h-20 rounded-full bg-white dark:bg-slate-900 object-cover ring-4 ring-indigo-500/20 shadow-md"
           />
           <button

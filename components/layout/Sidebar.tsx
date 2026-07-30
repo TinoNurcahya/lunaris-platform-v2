@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -228,15 +229,13 @@ export default function Sidebar({ profile: propProfile, isAdmin: propIsAdmin }: 
         {profile && (
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3 transition-colors duration-200">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
                 alt={profile.name}
+                width={48}
+                height={48}
+                unoptimized
                 className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover ring-2 ring-indigo-500/30 shrink-0"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`;
-                }}
               />
               <div className="min-w-0 flex-1">
                 <h4 className="text-base font-bold text-slate-900 dark:text-white truncate transition-colors duration-200">{profile.name}</h4>

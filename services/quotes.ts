@@ -124,7 +124,7 @@ export async function fetchQuoteComments(quoteId: number): Promise<CommentItem[]
   return (data as CommentItem[]) || [];
 }
 
-export async function deleteComment(commentId: number, _quoteId?: number): Promise<void> {
+export async function deleteComment(commentId: number): Promise<void> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

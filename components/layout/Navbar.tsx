@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Sparkles, PlusCircle, Search, Bell, Settings, Sun, Moon } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
@@ -146,15 +147,13 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                   className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                   title="Lihat Profil Saya"
                 >
-                  <img
+                  <Image
                     src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
                     alt={profile.name}
+                    width={36}
+                    height={36}
+                    unoptimized
                     className="w-9 h-9 rounded-full bg-slate-200 object-cover ring-2 ring-indigo-500/30"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`;
-                    }}
                   />
                   <div className="hidden lg:block text-left pr-1">
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">{profile.name}</p>

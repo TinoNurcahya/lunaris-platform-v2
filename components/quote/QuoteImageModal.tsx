@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { QuoteItem } from '@/types';
 import { Download, X, Sparkles, Image as ImageIcon, Check, Crop, Type, Sliders, Upload } from 'lucide-react';
 import { toPng } from 'html-to-image';
@@ -407,9 +408,12 @@ export default function QuoteImageModal({ quote, isOpen, onClose }: QuoteImageMo
             {/* Author Footer inside Card */}
             <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/20 text-xs">
               <div className="flex items-center gap-2.5">
-                <img
+                <Image
                   src={quote.user?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user?.username || 'anon'}`}
                   alt={quote.user?.name || 'Anonim'}
+                  width={32}
+                  height={32}
+                  unoptimized
                   className="w-8 h-8 rounded-full bg-slate-200 object-cover ring-2 ring-white/30"
                 />
                 <div>

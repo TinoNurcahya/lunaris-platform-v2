@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { UserProfile } from '@/types';
 import { fetchFollowers, fetchFollowing } from '@/services/profile';
 import { X, Users } from 'lucide-react';
@@ -113,9 +114,12 @@ export default function FollowsModal({ userId, initialTab = 'followers', isOpen,
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <img
+                  <Image
                     src={user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.username}`}
                     alt={user.name}
+                    width={40}
+                    height={40}
+                    unoptimized
                     className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover shrink-0 ring-2 ring-indigo-500/10 group-hover:ring-indigo-500/30"
                   />
                   <div className="min-w-0">

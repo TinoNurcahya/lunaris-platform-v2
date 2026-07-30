@@ -105,8 +105,9 @@ export default function CreateQuotePage() {
 
       toast.success('Kutipan berhasil diterbitkan! (+15 XP)');
       router.push(`/quotes/${data.id}`);
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal membuat kutipan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal membuat kutipan';
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -322,7 +323,7 @@ export default function CreateQuotePage() {
             {/* Quote Content */}
             <blockquote className="relative my-4">
               <p className="text-lg font-medium text-slate-800 dark:text-slate-100 leading-relaxed italic">
-                "{content || 'Pratinjau isi kutipan Anda akan muncul di sini saat diketik...'}"
+                &quot;{content || 'Pratinjau isi kutipan Anda akan muncul di sini saat diketik...'}&quot;
               </p>
             </blockquote>
 
@@ -346,7 +347,7 @@ export default function CreateQuotePage() {
                   </p>
                   {songSnippet && (
                     <p className="text-xs text-slate-500 dark:text-slate-400 italic line-clamp-1 mt-0.5">
-                      "{songSnippet}"
+                      &quot;{songSnippet}&quot;
                     </p>
                   )}
                 </div>

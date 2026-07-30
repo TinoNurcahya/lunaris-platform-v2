@@ -9,7 +9,7 @@ interface ProfileAnalyticsProps {
   quotes: QuoteItem[];
 }
 
-export default function ProfileAnalytics({ profile: _profile, quotes }: ProfileAnalyticsProps) {
+export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
   const totalLikes = quotes.reduce((acc, q) => acc + (q.likes_count || 0), 0);
   const totalDislikes = quotes.reduce((acc, q) => acc + (q.dislikes_count || 0), 0);
   const totalComments = quotes.reduce((acc, q) => acc + (q.comments_count || 0), 0);

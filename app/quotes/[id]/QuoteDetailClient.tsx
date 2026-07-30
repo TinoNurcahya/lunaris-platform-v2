@@ -128,7 +128,7 @@ export default function QuoteDetailClient({ params }: QuoteDetailClientProps) {
 
   const handleDeleteComment = async (commentId: number) => {
     try {
-      await deleteComment(commentId, quoteId);
+      await deleteComment(commentId);
       toast.success('Komentar berhasil dihapus');
       setComments((prev) => prev.filter((c) => c.id !== commentId && c.parent_id !== commentId));
       if (quote) {

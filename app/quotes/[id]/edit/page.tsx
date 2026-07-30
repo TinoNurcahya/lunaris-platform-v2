@@ -101,8 +101,9 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
 
       toast.success('Kutipan berhasil diperbarui!');
       router.push(`/quotes/${quoteId}`);
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal memperbarui kutipan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui kutipan';
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

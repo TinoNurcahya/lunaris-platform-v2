@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   Heart,
@@ -61,13 +62,15 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
   const [readerModalOpen, setReaderModalOpen] = useState(false);
   const [collectionModalOpen, setCollectionModalOpen] = useState(false);
 
-  useEffect(() => {
+  const [prevQuote, setPrevQuote] = useState(quote);
+  if (prevQuote !== quote) {
+    setPrevQuote(quote);
     setIsBookmarked(quote.is_bookmarked || false);
     setLikesCount(quote.likes_count || 0);
     setDislikesCount(quote.dislikes_count || 0);
     setUserVote(quote.user_vote || null);
     setIsPinned(quote.is_pinned || false);
-  }, [quote]);
+  }
 
   useEffect(() => {
     if (currentUserId) {
@@ -154,15 +157,13 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
         <div className="flex items-center justify-between mb-4">
           {quote.user ? (
             <Link href={`/profile/${quote.user.username}`} className="flex items-center gap-3 group/author">
-              <img
+              <Image
                 src={quote.user.avatar_url?.trim() ? quote.user.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user.username}`}
                 alt={quote.user.name}
+                width={40}
+                height={40}
+                unoptimized
                 className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover ring-2 ring-indigo-500/20 group-hover/author:ring-indigo-500 transition-all"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${quote.user?.username || 'user'}`;
-                }}
               />
               <div>
                 <h4 className="text-base font-semibold text-slate-900 dark:text-white group-hover/author:text-indigo-600 transition-colors">

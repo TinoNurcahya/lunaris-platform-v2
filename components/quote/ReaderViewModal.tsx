@@ -57,10 +57,23 @@ export default function ReaderViewModal({ quote, isOpen, onClose }: ReaderViewMo
     setIsPlaying(false);
   };
 
-  // Stop sound when modal closes or unmounts
   useEffect(() => {
     if (!isOpen) {
-      stopAmbientSound();
+      if (sourceNodeRef.current) {
+        try {
+          if ('stop' in sourceNodeRef.current && typeof (sourceNodeRef.current as AudioBufferSourceNode).stop === 'function') {
+            (sourceNodeRef.current as AudioBufferSourceNode).stop();
+          }
+          sourceNodeRef.current.disconnect();
+        } catch {}
+        sourceNodeRef.current = null;
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        try {
+          audioCtxRef.current.close();
+        } catch {}
+        audioCtxRef.current = null;
+      }
     }
   }, [isOpen]);
 

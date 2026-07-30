@@ -58,17 +58,13 @@ export default async function QuoteDetailPage({ params }: PageProps) {
   const quoteId = parseInt(id, 10);
   const quote = await fetchQuoteByIdServer(quoteId);
 
-  const articleSchema = quote
+  const quotationSchema = quote
     ? {
         '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: quote.song_title
-          ? `"${quote.song_title}" oleh ${quote.song_artist || quote.user?.name}`
-          : `Kutipan oleh ${quote.user?.name || 'Pengguna Lunarys'}`,
-        description: quote.content.slice(0, 200),
+        '@type': 'Quotation',
+        text: quote.content,
         datePublished: quote.created_at,
-        dateModified: quote.updated_at,
-        author: {
+        creator: {
           '@type': 'Person',
           name: quote.user?.name || 'Pengguna Lunarys',
           url: quote.user?.username
@@ -81,16 +77,26 @@ export default async function QuoteDetailPage({ params }: PageProps) {
           url: BASE_URL,
         },
         url: `${BASE_URL}/quotes/${id}`,
-        mainEntityOfPage: {
-          '@type': 'WebPage',
-          '@id': `${BASE_URL}/quotes/${id}`,
-        },
+        ...(quote.song_title
+          ? {
+              citation: {
+                '@type': 'MusicComposition',
+                name: quote.song_title,
+                composer: quote.song_artist
+                  ? { '@type': 'Person', name: quote.song_artist }
+                  : undefined,
+                lyrics: quote.song_lyric_snippet
+                  ? { '@type': 'CreativeWork', text: quote.song_lyric_snippet }
+                  : undefined,
+              },
+            }
+          : {}),
       }
     : null;
 
   return (
     <>
-      {articleSchema && <JsonLd data={articleSchema} />}
+      {quotationSchema && <JsonLd data={quotationSchema} />}
       <QuoteDetailClient params={params} />
     </>
   );
