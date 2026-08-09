@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { QuoteItem, UserProfile } from '@/types';
 import QuoteCard from '@/components/quote/QuoteCard';
-import { Search, Quote, Users, Music, Sparkles } from 'lucide-react';
+import { Search, Quote, Users, Music, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 function SearchContent() {
@@ -18,6 +18,9 @@ function SearchContent() {
   const [quotes, setQuotes] = useState<QuoteItem[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     setQuery(initialQuery);
@@ -38,7 +41,8 @@ function SearchContent() {
           .select('*, user:profiles!user_id(*), category:categories(*)')
           .eq('status', 'approved')
           .or(`content.ilike.${searchTerm},song_title.ilike.${searchTerm},song_artist.ilike.${searchTerm}`)
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false })
+          .limit(20),
         supabase
           .from('profiles')
           .select('*')
@@ -46,12 +50,45 @@ function SearchContent() {
           .limit(20)
       ]);
 
-      setQuotes((quotesData as QuoteItem[]) || []);
+      const quotesList = (quotesData as QuoteItem[]) || [];
+      setQuotes(quotesList);
       setUsers((usersData as UserProfile[]) || []);
+      setPage(1);
+      setHasMore(quotesList.length === 20);
       setLoading(false);
     }
     searchData();
   }, [initialQuery]);
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    
+    const supabase = createClient();
+    const searchTerm = `%${initialQuery.trim()}%`;
+    const nextPage = page + 1;
+    const limit = 20;
+    const from = (nextPage - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data: moreQuotes } = await supabase
+      .from('quotes')
+      .select('*, user:profiles!user_id(*), category:categories(*)')
+      .eq('status', 'approved')
+      .or(`content.ilike.${searchTerm},song_title.ilike.${searchTerm},song_artist.ilike.${searchTerm}`)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    const quotesList = (moreQuotes as QuoteItem[]) || [];
+    if (quotesList.length > 0) {
+      setQuotes((prev) => [...prev, ...quotesList]);
+      setPage(nextPage);
+      setHasMore(quotesList.length === 20);
+    } else {
+      setHasMore(false);
+    }
+    setLoadingMore(false);
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,6 +246,19 @@ function SearchContent() {
                   <QuoteCard key={quote.id} quote={quote} />
                 ))}
               </div>
+              
+              {hasMore && (activeTab === 'all' || activeTab === 'quotes' || activeTab === 'songs') && (
+                <div className="pt-6 flex justify-center">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-100 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer"
+                  >
+                    {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                    <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

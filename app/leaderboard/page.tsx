@@ -3,18 +3,38 @@
 import { useEffect, useState } from 'react';
 import { fetchLeaderboard } from '@/services/profile';
 import { UserProfile } from '@/types';
-import { Trophy, Award, Crown, Zap, TrendingUp, BarChart2 } from 'lucide-react';
+import { Trophy, Award, Crown, Zap, TrendingUp, BarChart2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LeaderboardPage() {
   const [leaders, setLeaders] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadLeaders = async (isLoadMore = false) => {
+    if (!isLoadMore) setLoading(true);
+    else setLoadingMore(true);
+
+    const currentPage = isLoadMore ? page + 1 : 1;
+    const data = await fetchLeaderboard({ page: currentPage, limit: 20 });
+
+    if (!isLoadMore) {
+      setLeaders(data);
+      setPage(1);
+    } else if (data.length > 0) {
+      setLeaders((prev) => [...prev, ...data]);
+      setPage(currentPage);
+    }
+
+    setHasMore(data.length === 20);
+    setLoading(false);
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
-    fetchLeaderboard().then((data) => {
-      setLeaders(data);
-      setLoading(false);
-    });
+    loadLeaders(false);
   }, []);
 
   const maxXp = leaders.length > 0 ? Math.max(...leaders.map((u) => u.xp || 0), 1) : 1;
@@ -144,6 +164,19 @@ export default function LeaderboardPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {hasMore && !loading && leaders.length > 0 && (
+        <div className="pt-6 flex justify-center">
+          <button
+            onClick={() => loadLeaders(true)}
+            disabled={loadingMore}
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/80 rounded-xl transition-all border border-amber-200 dark:border-amber-800 shadow-sm disabled:opacity-50 cursor-pointer"
+          >
+            {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+          </button>
         </div>
       )}
 

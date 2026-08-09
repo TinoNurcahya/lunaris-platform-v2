@@ -61,6 +61,26 @@ export default function CreateQuotePage() {
       return;
     }
 
+    if (content.trim().length > 1000) {
+      toast.error('Kutipan terlalu panjang (maksimal 1000 karakter)');
+      return;
+    }
+
+    if (songTitle.trim() && songTitle.trim().length > 100) {
+      toast.error('Judul lagu terlalu panjang (maksimal 100 karakter)');
+      return;
+    }
+
+    if (songArtist.trim() && songArtist.trim().length > 100) {
+      toast.error('Nama artis terlalu panjang (maksimal 100 karakter)');
+      return;
+    }
+
+    if (songSnippet.trim() && songSnippet.trim().length > 300) {
+      toast.error('Potongan lirik terlalu panjang (maksimal 300 karakter)');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const supabase = createClient();
@@ -145,12 +165,16 @@ export default function CreateQuotePage() {
               </label>
               <textarea
                 rows={4}
+                maxLength={1000}
                 placeholder="Tulis kutipan indahmu di sini..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-600 transition-all resize-none"
                 required
               />
+              <div className="text-right text-[10px] text-slate-500">
+                {content.length}/1000
+              </div>
             </div>
 
             {/* Category Select */}

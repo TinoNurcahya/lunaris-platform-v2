@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import QuoteCard from '@/components/quote/QuoteCard';
 import { QuoteItem } from '@/types';
-import { Bookmark, Sparkles } from 'lucide-react';
+import { Bookmark, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BookmarksPage() {
   const [quotes, setQuotes] = useState<QuoteItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     async function loadBookmarks() {
@@ -31,7 +34,9 @@ export default function BookmarksPage() {
             category:categories(*)
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       if (data) {
         const bookmarkedQuotes = data
@@ -39,12 +44,59 @@ export default function BookmarksPage() {
           .filter((q: any) => q !== null)
           .map((q: any) => ({ ...q, is_bookmarked: true }));
         setQuotes(bookmarkedQuotes);
+        setPage(1);
+        setHasMore(bookmarkedQuotes.length === 20);
       }
 
       setLoading(false);
     }
     loadBookmarks();
   }, []);
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const nextPage = page + 1;
+    const limit = 20;
+    const from = (nextPage - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data } = await supabase
+      .from('bookmarks')
+      .select(`
+        quote:quotes(
+          *,
+          user:profiles!user_id(*),
+          category:categories(*)
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (data) {
+      const moreQuotes = data
+        .map((item: any) => item.quote)
+        .filter((q: any) => q !== null)
+        .map((q: any) => ({ ...q, is_bookmarked: true }));
+
+      if (moreQuotes.length > 0) {
+        setQuotes((prev) => [...prev, ...moreQuotes]);
+        setPage(nextPage);
+        setHasMore(moreQuotes.length === 20);
+      } else {
+        setHasMore(false);
+      }
+    } else {
+      setHasMore(false);
+    }
+    setLoadingMore(false);
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -77,11 +129,26 @@ export default function BookmarksPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5">
-          {quotes.map((quote) => (
-            <QuoteCard key={quote.id} quote={quote} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-5">
+            {quotes.map((quote) => (
+              <QuoteCard key={quote.id} quote={quote} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="pt-6 flex justify-center">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-100 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ export async function fetchQuotes(options?: {
   sortBy?: 'latest' | 'popular' | 'of_the_day' | 'has_song';
   mood?: string;
   limit?: number;
+  page?: number;
 }): Promise<QuoteItem[]> {
   const supabase = createClient();
 
@@ -41,9 +42,12 @@ export async function fetchQuotes(options?: {
     query = query.order('created_at', { ascending: false });
   }
 
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
+  const page = options?.page || 1;
+  const limit = options?.limit || 20;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  query = query.range(from, to);
 
   const { data, error } = await query;
 

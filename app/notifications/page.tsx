@@ -14,14 +14,16 @@ import {
   Trash2,
   Filter,
   Eye,
-  EyeOff
+  EyeOff,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import {
   markNotificationsAsRead,
   toggleNotificationRead,
   deleteNotification,
-  deleteAllNotifications
+  deleteAllNotifications,
+  fetchUserNotifications
 } from '@/services/notifications';
 import { toast } from 'sonner';
 
@@ -29,35 +31,44 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'interaction' | 'broadcast'>('all');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadNotifications = async () => {
-    setLoading(true);
+  const loadNotifications = async (isLoadMore = false) => {
+    if (!isLoadMore) setLoading(true);
+    else setLoadingMore(true);
+
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       setLoading(false);
+      setLoadingMore(false);
       return;
     }
 
-    const { data } = await supabase
-      .from('notifications')
-      .select(`
-        *,
-        sender:profiles!sender_id(*),
-        quote:quotes(*)
-      `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    const currentPage = isLoadMore ? page + 1 : 1;
+    const newNotifications = await fetchUserNotifications({
+      page: currentPage,
+      limit: 20
+    });
 
-    if (data) {
-      setNotifications(data as NotificationItem[]);
+    if (!isLoadMore) {
+      setNotifications(newNotifications);
+      setPage(1);
+    } else if (newNotifications.length > 0) {
+      setNotifications((prev) => [...prev, ...newNotifications]);
+      setPage(currentPage);
     }
+
+    setHasMore(newNotifications.length === 20);
     setLoading(false);
+    setLoadingMore(false);
   };
 
   useEffect(() => {
-    loadNotifications();
+    loadNotifications(false);
   }, []);
 
   const handleMarkAllRead = async () => {
@@ -318,6 +329,21 @@ export default function NotificationsPage() {
           })}
         </div>
       )}
+
+      {/* Load More Button */}
+      {hasMore && filteredNotifications.length > 0 && filter === 'all' && (
+        <div className="pt-6 flex justify-center">
+          <button
+            onClick={() => loadNotifications(true)}
+            disabled={loadingMore}
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-100 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer"
+          >
+            {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -1,8 +1,34 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
+// Simple in-memory rate limiter (resets on serverless cold start)
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
+const MAX_REQUESTS_PER_MINUTE = 3;
+
 export async function POST(request: Request) {
   try {
+    // Rate Limiting Logic
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const now = Date.now();
+    const userRateData = rateLimitMap.get(ip);
+    
+    if (userRateData) {
+      const timeElapsed = now - userRateData.timestamp;
+      if (timeElapsed < 60000) { // Within 1 minute
+        if (userRateData.count >= MAX_REQUESTS_PER_MINUTE) {
+          return NextResponse.json(
+            { error: 'Terlalu banyak permintaan. Silakan coba lagi dalam beberapa saat.' },
+            { status: 429 }
+          );
+        }
+        userRateData.count += 1;
+      } else {
+        rateLimitMap.set(ip, { count: 1, timestamp: now });
+      }
+    } else {
+      rateLimitMap.set(ip, { count: 1, timestamp: now });
+    }
+
     const { name, email, subject, message } = await request.json();
 
     if (!name || !email || !message) {

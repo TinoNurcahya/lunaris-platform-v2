@@ -2,13 +2,18 @@ import { createClient } from '@/utils/supabase/client';
 import { UserProfile } from '@/types';
 import { createNotification } from './notifications';
 
-export async function fetchLeaderboard(): Promise<UserProfile[]> {
+export async function fetchLeaderboard(options?: { limit?: number; page?: number }): Promise<UserProfile[]> {
+  const page = options?.page || 1;
+  const limit = options?.limit || 20;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
   const supabase = createClient();
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .order('xp', { ascending: false })
-    .limit(20);
+    .range(from, to);
 
   if (error) {
     console.error('Error fetching leaderboard:', error);

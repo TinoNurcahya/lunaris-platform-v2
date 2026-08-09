@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/client';
 
+import { NotificationItem } from '@/types';
+
 export function formatBadgeCount(count: number): string | null {
   if (count <= 0) return null;
   if (count > 99) return '99+';
@@ -106,6 +108,40 @@ export async function deleteAllNotifications(): Promise<void> {
     .eq('user_id', user.id);
 
   if (error) throw error;
+}
+
+export async function fetchUserNotifications(options?: { page?: number; limit?: number; filter?: 'all' | 'unread' | 'interaction' | 'broadcast' }): Promise<NotificationItem[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const page = options?.page || 1;
+  const limit = options?.limit || 20;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
+    .from('notifications')
+    .select(`
+      *,
+      sender:profiles!sender_id(*),
+      quote:quotes(*)
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (options?.filter === 'unread') {
+    query = query.eq('is_read', false);
+  } else if (options?.filter === 'interaction') {
+    query = query.in('type', ['like', 'comment', 'follow']);
+  } else if (options?.filter === 'broadcast') {
+    query = query.eq('type', 'broadcast');
+  }
+
+  const { data, error } = await query;
+  if (error) return [];
+  return (data as NotificationItem[]) || [];
 }
 
 export async function getAdminActionCounts(): Promise<{ pendingQuotes: number; pendingReports: number }> {

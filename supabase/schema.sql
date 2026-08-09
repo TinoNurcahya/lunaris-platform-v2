@@ -51,12 +51,14 @@ CREATE TABLE IF NOT EXISTS public.quotes (
   comments_count INT NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
   is_quote_of_day BOOLEAN NOT NULL DEFAULT FALSE,
+  is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Migration for existing quotes table
 ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS mood TEXT;
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- --------------------------------------------------------
 -- TABLE 4: COMMENTS
