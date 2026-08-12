@@ -223,7 +223,8 @@ export default function Sidebar({ profile: propProfile, isAdmin: propIsAdmin }: 
 
   return (
     <aside className="w-64 hidden md:block shrink-0">
-      <div className="sticky top-20 space-y-4">
+      <div className="sticky top-20 space-y-4 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar pr-1">
+
 
         {/* User Profile Card in Sidebar (If Logged In) */}
         {profile && (
