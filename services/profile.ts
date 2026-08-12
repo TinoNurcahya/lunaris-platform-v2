@@ -145,3 +145,33 @@ export async function updateUserProfile(
 
   if (error) throw error;
 }
+
+export async function uploadAvatar(userId: string, file: File): Promise<string> {
+  const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+  if (file.size > MAX_SIZE) {
+    throw new Error('Ukuran file foto profil maksimal 2 MB');
+  }
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new Error('Format file tidak didukung (Gunakan JPG, PNG, WEBP, atau GIF)');
+  }
+
+  const supabase = createClient();
+  const fileExt = file.name.split('.').pop() || 'png';
+  const filePath = `${userId}-${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) {
+    console.error('Error uploading avatar:', uploadError);
+    throw new Error('Gagal mengunggah foto profil ke penyimpanan server');
+  }
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+  return data.publicUrl;
+}
+

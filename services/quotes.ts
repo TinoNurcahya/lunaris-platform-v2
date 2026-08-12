@@ -217,3 +217,27 @@ export async function togglePinQuote(quoteId: number, currentPinnedState: boolea
   if (error) throw error;
   return newPinnedState;
 }
+
+export function sanitizeText(text: string | null | undefined, maxLength = 1000): string {
+  if (!text) return '';
+  return text
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, maxLength);
+}
+
+export function validateQuoteInput(payload: { content: string; song_title?: string; song_artist?: string }) {
+  if (!payload.content || payload.content.trim().length === 0) {
+    throw new Error('Isi kutipan tidak boleh kosong');
+  }
+  if (payload.content.trim().length > 1000) {
+    throw new Error('Kutipan terlalu panjang (maksimal 1000 karakter)');
+  }
+  if (payload.song_title && payload.song_title.trim().length > 150) {
+    throw new Error('Judul lagu terlalu panjang (maksimal 150 karakter)');
+  }
+  if (payload.song_artist && payload.song_artist.trim().length > 150) {
+    throw new Error('Nama penyanyi terlalu panjang (maksimal 150 karakter)');
+  }
+}
+

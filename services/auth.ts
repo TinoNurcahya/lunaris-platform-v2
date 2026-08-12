@@ -1,5 +1,31 @@
 import { createClient } from '@/utils/supabase/client';
 
+export const RESERVED_USERNAMES = [
+  'admin',
+  'administrator',
+  'system',
+  'api',
+  'lunarys',
+  'official',
+  'help',
+  'support',
+  'moderator',
+  'root',
+  'settings',
+  'profile',
+  'search',
+  'quotes',
+  'categories',
+  'leaderboard',
+  'notifications'
+];
+
+export function isReservedUsername(username: string): boolean {
+  if (!username) return false;
+  const cleanUsername = username.trim().toLowerCase();
+  return RESERVED_USERNAMES.includes(cleanUsername);
+}
+
 export async function signInWithGoogle(): Promise<void> {
   const supabase = createClient();
   const origin = window.location.origin;

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { UserProfile } from '@/types';
-import { updateUserProfile } from '@/services/profile';
-import { X, User, Sparkles, RefreshCw } from 'lucide-react';
+import { updateUserProfile, uploadAvatar } from '@/services/profile';
+import { X, User, Sparkles, RefreshCw, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EditProfileModalProps {
@@ -24,6 +24,7 @@ export default function EditProfileModal({
   const [bio, setBio] = useState(profile.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   if (!isOpen) return null;
 
@@ -33,6 +34,24 @@ export default function EditProfileModal({
     setAvatarUrl(newAvatar);
     toast.success('Avatar acak berhasil dibuat!');
   };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const publicUrl = await uploadAvatar(profile.id, file);
+      setAvatarUrl(publicUrl);
+      toast.success('Foto profil berhasil diunggah!');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengunggah gambar';
+      toast.error(message);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,14 +117,29 @@ export default function EditProfileModal({
             unoptimized
             className="w-20 h-20 rounded-full bg-white dark:bg-slate-900 object-cover ring-4 ring-indigo-500/20 shadow-md"
           />
-          <button
-            type="button"
-            onClick={handleGenerateRandomAvatar}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-full transition-all cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Acak Avatar Baru</span>
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full transition-all cursor-pointer shadow-xs">
+              {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+              <span>{uploadingAvatar ? 'Mengunggah...' : 'Unggah Foto'}</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleFileUpload}
+                disabled={uploadingAvatar}
+                className="hidden"
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={handleGenerateRandomAvatar}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-full transition-all cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Acak Avatar</span>
+            </button>
+          </div>
+
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
