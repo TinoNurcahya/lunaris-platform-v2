@@ -243,9 +243,10 @@ function SearchContent() {
 
               <div className="grid grid-cols-1 gap-5">
                 {(activeTab === 'songs' ? songQuotes : quotes).map((quote) => (
-                  <QuoteCard key={quote.id} quote={quote} />
+                  <QuoteCard key={quote.id} quote={quote} highlightQuery={initialQuery} />
                 ))}
               </div>
+
               
               {hasMore && (activeTab === 'all' || activeTab === 'quotes' || activeTab === 'songs') && (
                 <div className="pt-6 flex justify-center">

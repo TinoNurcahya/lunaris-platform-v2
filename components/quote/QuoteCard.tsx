@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 interface QuoteCardProps {
   quote: QuoteItem;
   currentUserId?: string;
+  highlightQuery?: string;
 }
 
 function getSpotifyEmbedUrl(inputUrl?: string | null): string | null {
@@ -50,7 +51,31 @@ function getSpotifyEmbedUrl(inputUrl?: string | null): string | null {
   return null;
 }
 
-export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
+function highlightText(text: string | null | undefined, query?: string) {
+  if (!query || !query.trim() || !text) return text || '';
+  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.toLowerCase() === query.trim().toLowerCase() ? (
+          <mark
+            key={index}
+            className="bg-amber-200 dark:bg-amber-900/90 text-amber-950 dark:text-amber-100 font-bold px-1 py-0.5 rounded"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
+export default function QuoteCard({ quote, currentUserId, highlightQuery }: QuoteCardProps) {
+
+
   const [likesCount, setLikesCount] = useState(quote.likes_count || 0);
   const [dislikesCount, setDislikesCount] = useState(quote.dislikes_count || 0);
   const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(quote.user_vote || null);
@@ -230,7 +255,7 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
         {/* Quote Content */}
         <blockquote className="relative my-4">
           <p className="text-slate-800 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-normal font-sans italic transition-colors duration-200">
-            &quot;{quote.content}&quot;
+            &quot;{highlightText(quote.content, highlightQuery)}&quot;
           </p>
         </blockquote>
 
@@ -240,16 +265,17 @@ export default function QuoteCard({ quote, currentUserId }: QuoteCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-200">
                 <Music className="w-4 h-4 text-emerald-600 dark:text-emerald-400 transition-colors duration-200" />
-                <span>{quote.song_title || 'Lagu Terkait'}</span>
-                {quote.song_artist && <span className="text-slate-400 font-normal">• {quote.song_artist}</span>}
+                <span>{quote.song_title ? highlightText(quote.song_title, highlightQuery) : 'Lagu Terkait'}</span>
+                {quote.song_artist && <span className="text-slate-400 font-normal">• {highlightText(quote.song_artist, highlightQuery)}</span>}
               </div>
             </div>
 
             {quote.song_lyric_snippet && (
               <p className="text-xs text-slate-600 dark:text-slate-400 italic border-l-2 border-emerald-500 pl-2 py-0.5 transition-colors duration-200">
-                &quot;{quote.song_lyric_snippet}&quot;
+                &quot;{highlightText(quote.song_lyric_snippet, highlightQuery)}&quot;
               </p>
             )}
+
 
             {spotifyEmbedUrl && (
               <div className="pt-1 overflow-hidden rounded-lg">
