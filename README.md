@@ -467,3 +467,4 @@ Project ini bersifat privat dan tidak dipublikasikan di bawah lisensi open-sourc
 <p align="center">
   Dibangun dengan Next.js, Supabase, Resend, dan Tailwind CSS.
 </p>
+
