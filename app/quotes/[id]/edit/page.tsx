@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { fetchQuoteById } from '@/services/quotes';
-import { fetchCategories } from '@/services/categories';
-import { Category } from '@/types';
-import { createClient } from '@/utils/supabase/client';
-import { Sparkles, Music, Send, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { toast } from 'sonner';
+import {use, useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import {fetchQuoteById} from "@/services/quotes";
+import {fetchCategories} from "@/services/categories";
+import {Category} from "@/types";
+import {createClient} from "@/utils/supabase/client";
+import {Sparkles, Music, Send, ArrowLeft} from "lucide-react";
+import Link from "next/link";
+import {toast} from "sonner";
 
-export default function EditQuotePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditQuotePage({params}: {params: Promise<{id: string}>}) {
+  const {id} = use(params);
   const quoteId = parseInt(id, 10);
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [categoryId, setCategoryId] = useState<number | undefined>();
-  const [songTitle, setSongTitle] = useState('');
-  const [songArtist, setSongArtist] = useState('');
-  const [songSnippet, setSongSnippet] = useState('');
-  const [spotifyUrl, setSpotifyUrl] = useState('');
+  const [songTitle, setSongTitle] = useState("");
+  const [songArtist, setSongArtist] = useState("");
+  const [songSnippet, setSongSnippet] = useState("");
+  const [spotifyUrl, setSpotifyUrl] = useState("");
   const [showManualFields, setShowManualFields] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -31,28 +31,27 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
     async function loadData() {
       setLoading(true);
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
 
       if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-        if (profile?.role === 'admin') {
+        const {data: profile} = await supabase.from("profiles").select("role").eq("id", user.id).single();
+        if (profile?.role === "admin") {
           setIsAdmin(true);
         }
       }
 
-      const [cats, quoteData] = await Promise.all([
-        fetchCategories(),
-        fetchQuoteById(quoteId)
-      ]);
+      const [cats, quoteData] = await Promise.all([fetchCategories(), fetchQuoteById(quoteId)]);
       setCategories(cats);
 
       if (quoteData) {
         setContent(quoteData.content);
-        setCategoryId(quoteData.category_id || (cats[0]?.id));
-        setSongTitle(quoteData.song_title || '');
-        setSongArtist(quoteData.song_artist || '');
-        setSongSnippet(quoteData.song_lyric_snippet || '');
-        setSpotifyUrl(quoteData.spotify_url || '');
+        setCategoryId(quoteData.category_id || cats[0]?.id);
+        setSongTitle(quoteData.song_title || "");
+        setSongArtist(quoteData.song_artist || "");
+        setSongSnippet(quoteData.song_lyric_snippet || "");
+        setSpotifyUrl(quoteData.spotify_url || "");
       }
       setLoading(false);
     }
@@ -62,23 +61,25 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) {
-      toast.error('Konten kutipan wajib diisi');
+      toast.error("Konten kutipan wajib diisi");
       return;
     }
 
     setSubmitting(true);
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
 
       if (!user) {
-        toast.error('Silakan login terlebih dahulu');
-        router.push('/login');
+        toast.error("Silakan login terlebih dahulu");
+        router.push("/login");
         return;
       }
 
       let updateQuery = supabase
-        .from('quotes')
+        .from("quotes")
         .update({
           category_id: categoryId || null,
           content: content.trim(),
@@ -86,23 +87,23 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
           song_artist: songArtist.trim() || null,
           song_lyric_snippet: songSnippet.trim() || null,
           spotify_url: spotifyUrl.trim() || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', quoteId);
+        .eq("id", quoteId);
 
       // If not admin, restrict update to own quotes only
       if (!isAdmin) {
-        updateQuery = updateQuery.eq('user_id', user.id);
+        updateQuery = updateQuery.eq("user_id", user.id);
       }
 
-      const { error } = await updateQuery;
+      const {error} = await updateQuery;
 
       if (error) throw error;
 
-      toast.success('Kutipan berhasil diperbarui!');
+      toast.success("Kutipan berhasil diperbarui!");
       router.push(`/quotes/${quoteId}`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Gagal memperbarui kutipan';
+      const message = err instanceof Error ? err.message : "Gagal memperbarui kutipan";
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -110,15 +111,16 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
   };
 
   if (loading) {
-    return <div className="max-w-2xl mx-auto h-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />;
+    return (
+      <div className="max-w-2xl mx-auto h-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
+    );
   }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <Link
         href={`/quotes/${quoteId}`}
-        className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-      >
+        className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
         <ArrowLeft className="w-4 h-4" />
         <span>Batal & Kembali</span>
       </Link>
@@ -132,12 +134,14 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit Kutipan</h2>
               {isAdmin && (
-                <span className="px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950 rounded-full border border-amber-200 dark:border-amber-800">
+                <span className="px-2 py-0.5 text-[10px] font-bold text-indigo-800 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950 rounded-full border border-indigo-200 dark:border-indigo-800">
                   Mode Admin
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Perbarui kutipan atau tautan musik lagumu.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Perbarui kutipan atau tautan musik lagumu.
+            </p>
           </div>
         </div>
 
@@ -163,10 +167,12 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(Number(e.target.value))}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-600 transition-all"
-            >
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-600 transition-all">
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                <option
+                  key={cat.id}
+                  value={cat.id}
+                  className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                   {cat.name}
                 </option>
               ))}
@@ -182,7 +188,9 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
 
             {/* Spotify Link Field */}
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-700 dark:text-slate-300 font-semibold">Tautan Lagu / Share Link Spotify</label>
+              <label className="text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                Tautan Lagu / Share Link Spotify
+              </label>
               <input
                 type="text"
                 placeholder="https://open.spotify.com/track/... atau tempel link Spotify di sini"
@@ -199,19 +207,19 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                   <button
                     type="button"
                     onClick={() => setShowManualFields(true)}
-                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
-                  >
+                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer">
                     + Tambah Judul & Artis Lagu Secara Manual
                   </button>
                 ) : (
                   <div className="space-y-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Detail Lagu Manual</span>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Detail Lagu Manual
+                      </span>
                       <button
                         type="button"
                         onClick={() => setShowManualFields(false)}
-                        className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-                      >
+                        className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                         Sembunyikan
                       </button>
                     </div>
@@ -229,7 +237,9 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs text-slate-600 dark:text-slate-400">Nama Artis / Band</label>
+                        <label className="text-xs text-slate-600 dark:text-slate-400">
+                          Nama Artis / Band
+                        </label>
                         <input
                           type="text"
                           placeholder="Misal: Soegi Bornean"
@@ -241,7 +251,9 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs text-slate-600 dark:text-slate-400">Potongan Lirik (Lyric Snippet)</label>
+                      <label className="text-xs text-slate-600 dark:text-slate-400">
+                        Potongan Lirik (Lyric Snippet)
+                      </label>
                       <input
                         type="text"
                         placeholder="Misal: Jadikan hanya aku satu-satunya..."
@@ -259,13 +271,11 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
           <button
             type="submit"
             disabled={submitting || !content.trim()}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
-          >
+            className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-xl shadow-md shadow-indigo-600/20 transition-all cursor-pointer">
             <Send className="w-4 h-4" />
-            <span>{submitting ? 'Simpan...' : 'Simpan Perubahan'}</span>
+            <span>{submitting ? "Simpan..." : "Simpan Perubahan"}</span>
           </button>
         </form>
-
       </div>
     </div>
   );

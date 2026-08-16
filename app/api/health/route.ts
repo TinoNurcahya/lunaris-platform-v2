@@ -15,7 +15,7 @@ export async function GET() {
     if (error) {
       dbStatus = 'degraded';
     }
-  } catch (err) {
+  } catch {
     dbStatus = 'unreachable';
   }
 

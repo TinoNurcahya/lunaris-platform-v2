@@ -50,8 +50,9 @@ export default function AdminBroadcastPage() {
 
       toast.success('Notifikasi pengumuman telah dikirim!');
       setBroadcastMessage('');
-    } catch (err: any) {
-      toast.error('Gagal mengirim notifikasi');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengirim notifikasi';
+      toast.error(message);
     }
   };
 

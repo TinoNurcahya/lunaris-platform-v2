@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import { QuoteItem } from '@/types';
+import { QuoteItem, Category } from '@/types';
 
 export async function fetchQuoteByIdServer(id: number): Promise<QuoteItem | null> {
   const supabase = createClient();
@@ -64,8 +64,8 @@ export async function fetchQuotesServer(options?: {
   return data as QuoteItem[];
 }
 
-export async function fetchCategoriesServer(): Promise<any[]> {
+export async function fetchCategoriesServer(): Promise<Category[]> {
   const supabase = createClient();
   const { data } = await supabase.from('categories').select('*').order('name', { ascending: true });
-  return data || [];
+  return (data as Category[]) || [];
 }

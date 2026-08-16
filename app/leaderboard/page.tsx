@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { fetchLeaderboard } from '@/services/profile';
-import { UserProfile } from '@/types';
-import { Trophy, Award, Crown, Zap, TrendingUp, BarChart2, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import {useEffect, useState} from "react";
+import {fetchLeaderboard} from "@/services/profile";
+import {UserProfile} from "@/types";
+import {Trophy, Award, Crown, Zap, BarChart2, Loader2} from "lucide-react";
+import Link from "next/link";
 
 export default function LeaderboardPage() {
   const [leaders, setLeaders] = useState<UserProfile[]>([]);
@@ -13,44 +13,53 @@ export default function LeaderboardPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadLeaders = async (isLoadMore = false) => {
-    if (!isLoadMore) setLoading(true);
-    else setLoadingMore(true);
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
 
-    const currentPage = isLoadMore ? page + 1 : 1;
-    const data = await fetchLeaderboard({ page: currentPage, limit: 20 });
+    const nextPage = page + 1;
+    const data = await fetchLeaderboard({page: nextPage, limit: 20});
 
-    if (!isLoadMore) {
-      setLeaders(data);
-      setPage(1);
-    } else if (data.length > 0) {
+    if (data.length > 0) {
       setLeaders((prev) => [...prev, ...data]);
-      setPage(currentPage);
+      setPage(nextPage);
     }
 
     setHasMore(data.length === 20);
-    setLoading(false);
     setLoadingMore(false);
   };
 
   useEffect(() => {
-    loadLeaders(false);
+    let ignore = false;
+    async function loadInitialLeaders() {
+      setLoading(true);
+      const data = await fetchLeaderboard({page: 1, limit: 20});
+      if (!ignore) {
+        setLeaders(data);
+        setPage(1);
+        setHasMore(data.length === 20);
+        setLoading(false);
+      }
+    }
+    loadInitialLeaders();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const maxXp = leaders.length > 0 ? Math.max(...leaders.map((u) => u.xp || 0), 1) : 1;
 
   return (
     <div className="space-y-6 pb-12 max-w-4xl mx-auto">
-      
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 p-6 sm:p-8 shadow-md text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-sky-600 p-6 sm:p-8 shadow-md text-white">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
             <Trophy className="w-6 h-6 text-white" />
           </div>
           <div>
             <h2 className="text-xl sm:text-2xl font-bold">Leaderboard Pengguna</h2>
-            <p className="text-xs text-amber-100 mt-0.5">
+            <p className="text-xs text-indigo-100 mt-0.5">
               Papan peringkat XP teratas dari para penulis & kontributor aktif Lunarys.
             </p>
           </div>
@@ -62,8 +71,10 @@ export default function LeaderboardPage() {
         <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <BarChart2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Visualisasi XP Top 5 Kontributor</h3>
+              <BarChart2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Visualisasi XP Top 5 Kontributor
+              </h3>
             </div>
             <span className="text-[11px] font-semibold text-slate-400 font-mono">Real-time Leaderboard</span>
           </div>
@@ -77,14 +88,14 @@ export default function LeaderboardPage() {
                     <span className="font-bold text-slate-900 dark:text-white">
                       #{index + 1} {user.name} (@{user.username})
                     </span>
-                    <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
+                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
                       {user.xp} XP
                     </span>
                   </div>
                   <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.max(percentage, 6)}%` }}
+                      className="h-full bg-gradient-to-r from-indigo-500 to-sky-500 rounded-full transition-all duration-500"
+                      style={{width: `${Math.max(percentage, 6)}%`}}
                     />
                   </div>
                 </div>
@@ -98,37 +109,38 @@ export default function LeaderboardPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
+            <div
+              key={i}
+              className="h-16 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse"
+            />
           ))}
         </div>
       ) : (
         <div className="space-y-3">
           {leaders.map((user, index) => {
-            const isTop3 = index < 3;
             const rank = index + 1;
 
             return (
               <div
                 key={user.id}
-                className={`p-4 rounded-2xl border flex items-center justify-between gap-4 transition-all duration-200 shadow-xs ${
+                className={`p-3.5 sm:p-4 rounded-2xl border flex items-center justify-between gap-2.5 sm:gap-4 transition-all duration-200 shadow-xs ${
                   rank === 1
-                    ? 'bg-gradient-to-r from-amber-500/10 via-white to-amber-500/5 dark:from-amber-950/40 dark:via-slate-900 dark:to-amber-950/20 border-amber-300 dark:border-amber-700/60 ring-1 ring-amber-400/30'
+                    ? "bg-gradient-to-r from-indigo-500/10 via-white to-indigo-500/5 dark:from-indigo-950/40 dark:via-slate-900 dark:to-indigo-950/20 border-indigo-300 dark:border-indigo-700/60 ring-1 ring-indigo-400/30"
                     : rank === 2
-                    ? 'bg-gradient-to-r from-slate-200/40 via-white to-slate-100/30 dark:from-slate-800/60 dark:via-slate-900 dark:to-slate-800/40 border-slate-300 dark:border-slate-700'
-                    : rank === 3
-                    ? 'bg-gradient-to-r from-amber-800/10 via-white to-amber-800/5 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-900 border-amber-800/30 dark:border-amber-900/60'
-                    : 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800'
-                }`}
-              >
-                <div className="flex items-center gap-4 min-w-0">
+                      ? "bg-gradient-to-r from-slate-200/40 via-white to-slate-100/30 dark:from-slate-800/60 dark:via-slate-900 dark:to-slate-800/40 border-slate-300 dark:border-slate-700"
+                      : rank === 3
+                        ? "bg-gradient-to-r from-sky-500/10 via-white to-sky-500/5 dark:from-sky-950/30 dark:via-slate-900 dark:to-slate-900 border-sky-300/40 dark:border-sky-900/60"
+                        : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800"
+                }`}>
+                <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
                   {/* Rank Badge */}
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">
                     {rank === 1 ? (
-                      <Crown className="w-6 h-6 text-amber-500 fill-amber-400" />
+                      <Crown className="w-6 h-6 text-indigo-500 fill-indigo-400" />
                     ) : rank === 2 ? (
                       <Award className="w-6 h-6 text-slate-400" />
                     ) : rank === 3 ? (
-                      <Award className="w-6 h-6 text-amber-700" />
+                      <Award className="w-6 h-6 text-rose-600" />
                     ) : (
                       <span className="text-slate-400 dark:text-slate-500 font-mono">#{rank}</span>
                     )}
@@ -145,7 +157,9 @@ export default function LeaderboardPage() {
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                         {user.name}
                       </h4>
-                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono">@{user.username}</p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono">
+                        @{user.username}
+                      </p>
                     </div>
                   </Link>
                 </div>
@@ -154,13 +168,14 @@ export default function LeaderboardPage() {
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right">
                     <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1 justify-end">
-                      <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                      <Zap className="w-3.5 h-3.5 text-indigo-500 fill-indigo-500" />
                       <span>{user.xp} XP</span>
                     </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Level {user.level}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                      Level {user.level}
+                    </p>
                   </div>
                 </div>
-
               </div>
             );
           })}
@@ -170,16 +185,14 @@ export default function LeaderboardPage() {
       {hasMore && !loading && leaders.length > 0 && (
         <div className="pt-6 flex justify-center">
           <button
-            onClick={() => loadLeaders(true)}
+            onClick={() => loadMore()}
             disabled={loadingMore}
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/80 rounded-xl transition-all border border-amber-200 dark:border-amber-800 shadow-sm disabled:opacity-50 cursor-pointer"
-          >
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-200 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer">
             {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+            <span>{loadingMore ? "Memuat..." : "Tampilkan Lebih Banyak"}</span>
           </button>
         </div>
       )}
-
     </div>
   );
 }

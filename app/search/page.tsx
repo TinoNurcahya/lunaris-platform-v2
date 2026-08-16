@@ -23,10 +23,7 @@ function SearchContent() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    setQuery(initialQuery);
     if (!initialQuery.trim()) {
-      setQuotes([]);
-      setUsers([]);
       return;
     }
 

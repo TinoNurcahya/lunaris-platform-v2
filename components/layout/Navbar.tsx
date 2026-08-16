@@ -1,29 +1,31 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Sparkles, PlusCircle, Search, Bell, Settings, Sun, Moon } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
-import { UserProfile } from '@/types';
-import CommandPalette from './CommandPalette';
-import { getUnreadNotificationsCount, formatBadgeCount } from '@/services/notifications';
-import { useTheme } from '@/components/theme/ThemeProvider';
+import {useEffect, useState} from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {Sparkles, PlusCircle, Search, Bell, Settings, Sun, Moon} from "lucide-react";
+import {createClient} from "@/utils/supabase/client";
+import {UserProfile} from "@/types";
+import CommandPalette from "./CommandPalette";
+import {getUnreadNotificationsCount, formatBadgeCount} from "@/services/notifications";
+import {useTheme} from "@/components/theme/ThemeProvider";
 
-export default function Navbar({ profile: propProfile }: { profile?: UserProfile | null }) {
+export default function Navbar({profile: propProfile}: {profile?: UserProfile | null}) {
   const [profile, setProfile] = useState<UserProfile | null>(propProfile || null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { theme, toggleTheme } = useTheme();
+  const {theme, toggleTheme} = useTheme();
 
   useEffect(() => {
     const supabase = createClient();
 
     async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
 
       if (user) {
-        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        const {data} = await supabase.from("profiles").select("*").eq("id", user.id).single();
         if (data) setProfile(data as UserProfile);
 
         const count = await getUnreadNotificationsCount();
@@ -38,7 +40,9 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
       loadUser();
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: {subscription},
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
         setProfile(null);
         setUnreadCount(0);
@@ -56,7 +60,6 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
     <>
       <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-all">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-all">
@@ -76,8 +79,7 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
           <div className="flex-1 max-w-sm mx-4 hidden sm:block">
             <button
               onClick={() => setCommandPaletteOpen(true)}
-              className="w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all group"
-            >
+              className="w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all group">
               <div className="flex items-center gap-2">
                 <Search className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
                 <span>Cari kutipan, pengguna, atau tag...</span>
@@ -94,8 +96,7 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
             <button
               onClick={() => setCommandPaletteOpen(true)}
               className="p-2 sm:hidden text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              title="Cari"
-            >
+              title="Cari">
               <Search className="w-5 h-5" />
             </button>
 
@@ -103,17 +104,15 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
             <button
               onClick={toggleTheme}
               className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+              title={theme === "dark" ? "Mode Terang" : "Mode Gelap"}>
+              {theme === "dark" ? <Sun className="w-5 h-5 text-indigo-400" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {profile ? (
               <>
                 <Link
                   href="/quotes/create"
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
                   <PlusCircle className="w-4 h-4" />
                   <span>Buat Kutipan</span>
                 </Link>
@@ -122,8 +121,7 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                 <Link
                   href="/notifications"
                   className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-                  title="Notifikasi"
-                >
+                  title="Notifikasi">
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold font-mono text-white bg-rose-500 rounded-full ring-2 ring-white shadow-xs">
@@ -136,8 +134,7 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                 <Link
                   href="/settings"
                   className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-                  title="Pengaturan Akun"
-                >
+                  title="Pengaturan Akun">
                   <Settings className="w-5 h-5" />
                 </Link>
 
@@ -145,10 +142,13 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                 <Link
                   href={`/profile/${profile.username}`}
                   className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-                  title="Lihat Profil Saya"
-                >
+                  title="Lihat Profil Saya">
                   <Image
-                    src={profile.avatar_url?.trim() ? profile.avatar_url : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`}
+                    src={
+                      profile.avatar_url?.trim()
+                        ? profile.avatar_url
+                        : `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.username}`
+                    }
                     alt={profile.name}
                     width={36}
                     height={36}
@@ -156,8 +156,12 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
                     className="w-9 h-9 rounded-full bg-slate-200 object-cover ring-2 ring-indigo-500/30"
                   />
                   <div className="hidden lg:block text-left pr-1">
-                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">{profile.name}</p>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-medium">Lvl {profile.level} • {profile.xp} XP</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">
+                      {profile.name}
+                    </p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-medium">
+                      Lvl {profile.level} • {profile.xp} XP
+                    </p>
                   </div>
                 </Link>
               </>
@@ -165,28 +169,22 @@ export default function Navbar({ profile: propProfile }: { profile?: UserProfile
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-                >
+                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                   Masuk
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
+                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
                   Daftar
                 </Link>
               </div>
             )}
           </div>
-
         </div>
       </header>
 
       {/* Command Palette Search Modal */}
-      <CommandPalette
-        isOpen={commandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-      />
+      <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </>
   );
 }

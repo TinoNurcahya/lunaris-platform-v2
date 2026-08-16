@@ -1,95 +1,119 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { NotificationItem } from '@/types';
+import {useEffect, useState} from "react";
+import {createClient} from "@/utils/supabase/client";
+import {NotificationItem} from "@/types";
 import {
   Bell,
   Heart,
   MessageCircle,
   UserPlus,
   Megaphone,
-  Check,
   CheckCheck,
   Trash2,
-  Filter,
   Eye,
   EyeOff,
-  Loader2
-} from 'lucide-react';
-import Link from 'next/link';
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
 import {
   markNotificationsAsRead,
   toggleNotificationRead,
   deleteNotification,
   deleteAllNotifications,
-  fetchUserNotifications
-} from '@/services/notifications';
-import { toast } from 'sonner';
+  fetchUserNotifications,
+} from "@/services/notifications";
+import {toast} from "sonner";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'interaction' | 'broadcast'>('all');
+  const [filter, setFilter] = useState<"all" | "unread" | "interaction" | "broadcast">("all");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadNotifications = async (isLoadMore = false) => {
-    if (!isLoadMore) setLoading(true);
-    else setLoadingMore(true);
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {user},
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      setLoading(false);
       setLoadingMore(false);
       return;
     }
 
-    const currentPage = isLoadMore ? page + 1 : 1;
+    const nextPage = page + 1;
     const newNotifications = await fetchUserNotifications({
-      page: currentPage,
-      limit: 20
+      page: nextPage,
+      limit: 20,
     });
 
-    if (!isLoadMore) {
-      setNotifications(newNotifications);
-      setPage(1);
-    } else if (newNotifications.length > 0) {
+    if (newNotifications.length > 0) {
       setNotifications((prev) => [...prev, ...newNotifications]);
-      setPage(currentPage);
+      setPage(nextPage);
     }
 
     setHasMore(newNotifications.length === 20);
-    setLoading(false);
     setLoadingMore(false);
   };
 
   useEffect(() => {
-    loadNotifications(false);
+    let ignore = false;
+    async function loadInitialNotifications() {
+      setLoading(true);
+      const supabase = createClient();
+      const {
+        data: {user},
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        if (!ignore) setLoading(false);
+        return;
+      }
+
+      const newNotifications = await fetchUserNotifications({
+        page: 1,
+        limit: 20,
+      });
+
+      if (!ignore) {
+        setNotifications(newNotifications);
+        setPage(1);
+        setHasMore(newNotifications.length === 20);
+        setLoading(false);
+      }
+    }
+
+    loadInitialNotifications();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleMarkAllRead = async () => {
     try {
       await markNotificationsAsRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      toast.success('Semua notifikasi ditandai telah dibaca');
-    } catch (err: any) {
-      toast.error('Gagal menandai notifikasi');
+      setNotifications((prev) => prev.map((n) => ({...n, is_read: true})));
+      toast.success("Semua notifikasi ditandai telah dibaca");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal menandai notifikasi";
+      toast.error(message);
     }
   };
 
   const handleToggleRead = async (id: number, currentReadState: boolean) => {
     try {
       const newReadState = await toggleNotificationRead(id, currentReadState);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: newReadState } : n))
-      );
-      toast.success(newReadState ? 'Notifikasi ditandai dibaca' : 'Notifikasi ditandai belum dibaca');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal mengubah status notifikasi');
+      setNotifications((prev) => prev.map((n) => (n.id === id ? {...n, is_read: newReadState} : n)));
+      toast.success(newReadState ? "Notifikasi ditandai dibaca" : "Notifikasi ditandai belum dibaca");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal mengubah status notifikasi";
+      toast.error(message);
     }
   };
 
@@ -97,33 +121,35 @@ export default function NotificationsPage() {
     try {
       await deleteNotification(id);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
-      toast.success('Notifikasi berhasil dihapus');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal menghapus notifikasi');
+      toast.success("Notifikasi berhasil dihapus");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal menghapus notifikasi";
+      toast.error(message);
     }
   };
 
   const handleDeleteAll = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus semua notifikasi?')) return;
+    if (!window.confirm("Apakah Anda yakin ingin menghapus semua notifikasi?")) return;
     try {
       await deleteAllNotifications();
       setNotifications([]);
-      toast.success('Semua notifikasi berhasil dihapus');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal menghapus semua notifikasi');
+      toast.success("Semua notifikasi berhasil dihapus");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal menghapus semua notifikasi";
+      toast.error(message);
     }
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'like':
+      case "like":
         return <Heart className="w-4 h-4 text-rose-600 fill-rose-500" />;
-      case 'comment':
+      case "comment":
         return <MessageCircle className="w-4 h-4 text-indigo-600" />;
-      case 'follow':
+      case "follow":
         return <UserPlus className="w-4 h-4 text-emerald-600" />;
-      case 'broadcast':
-        return <Megaphone className="w-4 h-4 text-amber-600" />;
+      case "broadcast":
+        return <Megaphone className="w-4 h-4 text-indigo-600" />;
       default:
         return <Bell className="w-4 h-4 text-slate-500" />;
     }
@@ -131,9 +157,9 @@ export default function NotificationsPage() {
 
   // Filtered Notifications List
   const filteredNotifications = notifications.filter((n) => {
-    if (filter === 'unread') return !n.is_read;
-    if (filter === 'interaction') return n.type === 'like' || n.type === 'comment' || n.type === 'follow';
-    if (filter === 'broadcast') return n.type === 'broadcast';
+    if (filter === "unread") return !n.is_read;
+    if (filter === "interaction") return n.type === "like" || n.type === "comment" || n.type === "follow";
+    if (filter === "broadcast") return n.type === "broadcast";
     return true;
   });
 
@@ -141,7 +167,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      
       {/* Top Title & Header Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -157,7 +182,9 @@ export default function NotificationsPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Aktivitas dan interaksi pengguna terhadap akun & kutipanmu.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Aktivitas dan interaksi pengguna terhadap akun & kutipanmu.
+            </p>
           </div>
         </div>
 
@@ -168,8 +195,7 @@ export default function NotificationsPage() {
               <button
                 onClick={handleMarkAllRead}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-xl transition-all cursor-pointer"
-                title="Tandai Semua Dibaca"
-              >
+                title="Tandai Semua Dibaca">
                 <CheckCheck className="w-4 h-4" />
                 <span className="hidden sm:inline">Tandai Dibaca</span>
               </button>
@@ -178,8 +204,7 @@ export default function NotificationsPage() {
             <button
               onClick={handleDeleteAll}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-900 rounded-xl transition-all cursor-pointer"
-              title="Hapus Semua Notifikasi"
-            >
+              title="Hapus Semua Notifikasi">
               <Trash2 className="w-4 h-4" />
               <span className="hidden sm:inline">Hapus Semua</span>
             </button>
@@ -190,48 +215,44 @@ export default function NotificationsPage() {
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto">
         <button
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter("all")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-            filter === 'all'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
+            filter === "all"
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`}>
           <span>Semua ({notifications.length})</span>
         </button>
 
         <button
-          onClick={() => setFilter('unread')}
+          onClick={() => setFilter("unread")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-            filter === 'unread'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
+            filter === "unread"
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`}>
           <span>Belum Dibaca ({unreadCount})</span>
         </button>
 
         <button
-          onClick={() => setFilter('interaction')}
+          onClick={() => setFilter("interaction")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-            filter === 'interaction'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
+            filter === "interaction"
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`}>
           <Heart className="w-3.5 h-3.5 text-rose-500" />
           <span>Interaksi</span>
         </button>
 
         <button
-          onClick={() => setFilter('broadcast')}
+          onClick={() => setFilter("broadcast")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-            filter === 'broadcast'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
-          <Megaphone className="w-3.5 h-3.5 text-amber-500" />
+            filter === "broadcast"
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`}>
+          <Megaphone className="w-3.5 h-3.5 text-indigo-500" />
           <span>Pengumuman</span>
         </button>
       </div>
@@ -240,35 +261,40 @@ export default function NotificationsPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
+            <div
+              key={i}
+              className="h-20 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse"
+            />
           ))}
         </div>
       ) : filteredNotifications.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
           <Bell className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Tidak Ada Notifikasi</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Belum ada aktivitas atau pemberitahuan pada kategori ini.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Belum ada aktivitas atau pemberitahuan pada kategori ini.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredNotifications.map((notif) => {
-            const senderName = notif.sender?.name || (notif.type === 'broadcast' ? 'Pengumuman Lunarys' : 'Pengguna');
+            const senderName =
+              notif.sender?.name || (notif.type === "broadcast" ? "Pengumuman Lunarys" : "Pengguna");
             const senderUsername = notif.sender?.username;
             const targetUrl = notif.quote_id
               ? `/quotes/${notif.quote_id}`
               : senderUsername
-              ? `/profile/${senderUsername}`
-              : '#';
+                ? `/profile/${senderUsername}`
+                : "#";
 
             return (
               <div
                 key={notif.id}
                 className={`group relative p-4 rounded-2xl border shadow-xs transition-all duration-200 flex items-start justify-between gap-3 ${
                   notif.is_read
-                    ? 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-                    : 'bg-indigo-50/70 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800/80 text-slate-900 dark:text-white ring-1 ring-indigo-500/20'
-                }`}
-              >
+                    ? "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                    : "bg-indigo-50/70 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800/80 text-slate-900 dark:text-white ring-1 ring-indigo-500/20"
+                }`}>
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   {/* Notification Icon Badge */}
                   <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
@@ -279,8 +305,7 @@ export default function NotificationsPage() {
                     <div className="flex items-center gap-2 flex-wrap text-xs">
                       <Link
                         href={targetUrl}
-                        className="font-bold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                      >
+                        className="font-bold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                         {senderName}
                       </Link>
                       <span className="text-slate-600 dark:text-slate-300">{notif.message}</span>
@@ -291,16 +316,16 @@ export default function NotificationsPage() {
 
                     {notif.quote && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 italic line-clamp-1">
-                        "{notif.quote.content}"
+                        &quot;{notif.quote.content}&quot;
                       </p>
                     )}
 
                     <p className="text-[10px] text-slate-400 font-mono">
-                      {new Date(notif.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                      {new Date(notif.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </p>
                   </div>
@@ -311,16 +336,18 @@ export default function NotificationsPage() {
                   <button
                     onClick={() => handleToggleRead(notif.id, notif.is_read)}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                    title={notif.is_read ? 'Tandai Belum Dibaca' : 'Tandai Dibaca'}
-                  >
-                    {notif.is_read ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                    title={notif.is_read ? "Tandai Belum Dibaca" : "Tandai Dibaca"}>
+                    {notif.is_read ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    )}
                   </button>
 
                   <button
                     onClick={() => handleDeleteSingle(notif.id)}
                     className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
-                    title="Hapus Notifikasi"
-                  >
+                    title="Hapus Notifikasi">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -331,19 +358,17 @@ export default function NotificationsPage() {
       )}
 
       {/* Load More Button */}
-      {hasMore && filteredNotifications.length > 0 && filter === 'all' && (
+      {hasMore && filteredNotifications.length > 0 && filter === "all" && (
         <div className="pt-6 flex justify-center">
           <button
-            onClick={() => loadNotifications(true)}
+            onClick={() => loadMore()}
             disabled={loadingMore}
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-100 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer"
-          >
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 rounded-xl transition-all border border-indigo-100 dark:border-indigo-800 shadow-sm disabled:opacity-50 cursor-pointer">
             {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span>{loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak'}</span>
+            <span>{loadingMore ? "Memuat..." : "Tampilkan Lebih Banyak"}</span>
           </button>
         </div>
       )}
-
     </div>
   );
 }

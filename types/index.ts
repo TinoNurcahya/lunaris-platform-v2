@@ -47,3 +47,26 @@ export interface QuoteCollection {
   items_count?: number
   quotes?: QuoteItem[]
 }
+
+export interface AuditLogItem {
+  id: number
+  created_at: string
+  user_id?: string | null
+  user_email?: string | null
+  action: string
+  ip_address?: string | null
+  user_agent?: string | null
+  location?: string | null
+  path?: string | null
+  method?: string | null
+  details?: Record<string, unknown> | null
+  user?: Profile | null
+}
+
+export interface AuditLogStats {
+  total_logs: number
+  today_logs: number
+  unique_ips: number
+  admin_actions: number
+  top_browser: string
+}

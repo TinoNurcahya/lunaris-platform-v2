@@ -168,7 +168,7 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
 
   if (uploadError) {
     console.error('Error uploading avatar to Supabase Storage:', uploadError);
-    if (uploadError.message?.toLowerCase().includes('bucket not found') || (uploadError as any).error === 'Bucket not found') {
+    if (uploadError.message?.toLowerCase().includes('bucket not found') || (uploadError as { error?: string }).error === 'Bucket not found') {
       throw new Error('Bucket storage "avatars" belum ada. Silakan buat bucket bernama "avatars" di Supabase Dashboard > Storage.');
     }
     throw new Error(uploadError.message || 'Gagal mengunggah foto profil ke penyimpanan server');

@@ -6,8 +6,17 @@ import { Check, ExternalLink, AlertTriangle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+interface ReportWithDetails {
+  id: number;
+  reason: string;
+  status: string;
+  created_at: string;
+  reporter?: { name: string; username: string } | null;
+  quote?: { id: number; content: string } | null;
+}
+
 export default function AdminReportsPage() {
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<ReportWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +28,7 @@ export default function AdminReportsPage() {
         .select(`*, reporter:profiles(*), quote:quotes(*)`)
         .order('created_at', { ascending: false });
 
-      if (data) setReports(data);
+      if (data) setReports(data as ReportWithDetails[]);
       setLoading(false);
     }
     loadReports();
@@ -31,8 +40,9 @@ export default function AdminReportsPage() {
       await supabase.from('reports').update({ status: 'resolved' }).eq('id', reportId);
       toast.success('Laporan berhasil ditandai selesai');
       setReports((prev) => prev.map((r) => (r.id === reportId ? { ...r, status: 'resolved' } : r)));
-    } catch (err: any) {
-      toast.error('Gagal memperbarui laporan');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui laporan';
+      toast.error(message);
     }
   };
 
@@ -100,7 +110,7 @@ export default function AdminReportsPage() {
                 {rep.quote ? (
                   <div className="p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 rounded-xl space-y-1">
                     <p className="text-xs text-slate-700 dark:text-slate-300 italic leading-relaxed line-clamp-2">
-                      "{rep.quote.content}"
+                      &quot;{rep.quote.content}&quot;
                     </p>
                   </div>
                 ) : (

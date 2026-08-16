@@ -1,31 +1,28 @@
-'use client';
+"use client";
 
-import { UserProfile, QuoteItem } from '@/types';
-import { Heart, MessageCircle, Flame, BarChart3, Tag, ThumbsDown, PieChart, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import {UserProfile, QuoteItem} from "@/types";
+import {Heart, MessageCircle, Flame, BarChart3, Tag, ThumbsDown, PieChart, TrendingUp} from "lucide-react";
+import Link from "next/link";
 
 interface ProfileAnalyticsProps {
   profile: UserProfile;
   quotes: QuoteItem[];
 }
 
-export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
+export default function ProfileAnalytics({quotes}: ProfileAnalyticsProps) {
   const totalLikes = quotes.reduce((acc, q) => acc + (q.likes_count || 0), 0);
   const totalDislikes = quotes.reduce((acc, q) => acc + (q.dislikes_count || 0), 0);
   const totalComments = quotes.reduce((acc, q) => acc + (q.comments_count || 0), 0);
 
-  const topQuote = quotes.length > 0
-    ? [...quotes].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0))[0]
-    : null;
+  const topQuote =
+    quotes.length > 0 ? [...quotes].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0))[0] : null;
 
-  const avgCommentsPerQuote = quotes.length > 0
-    ? (totalComments / quotes.length).toFixed(1)
-    : '0';
+  const avgCommentsPerQuote = quotes.length > 0 ? (totalComments / quotes.length).toFixed(1) : "0";
 
   // Category tally for chart
   const categoryCounts: Record<string, number> = {};
   quotes.forEach((q) => {
-    const name = q.category?.name || 'Lainnya';
+    const name = q.category?.name || "Lainnya";
     categoryCounts[name] = (categoryCounts[name] || 0) + 1;
   });
 
@@ -33,7 +30,7 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
   const topCategory = categoryEntries[0];
 
   // Colors for charts
-  const CHART_COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+  const CHART_COLORS = ["#6366f1", "#10b981", "#f43f5e", "#4f46e5", "#059669", "#e11d48"];
 
   // Prepare quote engagement bars (top 6 quotes)
   const sortedQuotesForChart = [...quotes]
@@ -57,7 +54,6 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
 
       {/* Grid Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        
         {/* Total Likes Card */}
         <div className="relative overflow-hidden p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1 group hover:border-rose-300 transition-all">
           <div className="relative z-10 flex items-center justify-between">
@@ -67,7 +63,9 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
             </div>
           </div>
           <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">{totalLikes}</p>
-          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">Apresiasi Komunitas</p>
+          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            Apresiasi Komunitas
+          </p>
 
           <div className="absolute inset-x-0 bottom-0 h-9 pointer-events-none opacity-25 group-hover:opacity-50 transition-opacity">
             <svg className="w-full h-full" viewBox="0 0 100 35" preserveAspectRatio="none">
@@ -77,8 +75,17 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                   <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
-              <path d="M0 25 C20 15, 40 22, 60 10 C80 18, 90 12, 100 16 L100 35 L0 35 Z" fill="url(#roseGradient)" />
-              <path d="M0 25 C20 15, 40 22, 60 10 C80 18, 90 12, 100 16" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M0 25 C20 15, 40 22, 60 10 C80 18, 90 12, 100 16 L100 35 L0 35 Z"
+                fill="url(#roseGradient)"
+              />
+              <path
+                d="M0 25 C20 15, 40 22, 60 10 C80 18, 90 12, 100 16"
+                fill="none"
+                stroke="#f43f5e"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
         </div>
@@ -91,8 +98,12 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
               <ThumbsDown className="w-4 h-4" />
             </div>
           </div>
-          <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">{totalDislikes}</p>
-          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">Ulasan Komunitas</p>
+          <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">
+            {totalDislikes}
+          </p>
+          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            Ulasan Komunitas
+          </p>
 
           <div className="absolute inset-x-0 bottom-0 h-9 pointer-events-none opacity-25 group-hover:opacity-50 transition-opacity">
             <svg className="w-full h-full" viewBox="0 0 100 35" preserveAspectRatio="none">
@@ -102,8 +113,17 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                   <stop offset="100%" stopColor="#64748b" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
-              <path d="M0 18 C25 28, 50 16, 75 22, 90 14, 100 20 L100 35 L0 35 Z" fill="url(#slateGradient)" />
-              <path d="M0 18 C25 28, 50 16, 75 22, 90 14, 100 20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M0 18 C25 28, 50 16, 75 22, 90 14, 100 20 L100 35 L0 35 Z"
+                fill="url(#slateGradient)"
+              />
+              <path
+                d="M0 18 C25 28, 50 16, 75 22, 90 14, 100 20"
+                fill="none"
+                stroke="#64748b"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
         </div>
@@ -116,8 +136,12 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
               <MessageCircle className="w-4 h-4" />
             </div>
           </div>
-          <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">{totalComments}</p>
-          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">~{avgCommentsPerQuote} Komentar/Kutipan</p>
+          <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">
+            {totalComments}
+          </p>
+          <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            ~{avgCommentsPerQuote} Komentar/Kutipan
+          </p>
 
           <div className="absolute inset-x-0 bottom-0 h-9 pointer-events-none opacity-25 group-hover:opacity-50 transition-opacity">
             <svg className="w-full h-full" viewBox="0 0 100 35" preserveAspectRatio="none">
@@ -127,46 +151,62 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                   <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
-              <path d="M0 24 C20 12, 45 22, 65 14, 85 24, 100 10 L100 35 L0 35 Z" fill="url(#indigoGradient)" />
-              <path d="M0 24 C20 12, 45 22, 65 14, 85 24, 100 10" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M0 24 C20 12, 45 22, 65 14, 85 24, 100 10 L100 35 L0 35 Z"
+                fill="url(#indigoGradient)"
+              />
+              <path
+                d="M0 24 C20 12, 45 22, 65 14, 85 24, 100 10"
+                fill="none"
+                stroke="#6366f1"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
         </div>
 
         {/* Top Category Card */}
-        <div className="relative overflow-hidden p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1 group hover:border-amber-300 transition-all">
+        <div className="relative overflow-hidden p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1 group hover:border-sky-300 transition-all">
           <div className="relative z-10 flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Kategori Utama</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-900 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-900 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <Tag className="w-4 h-4" />
             </div>
           </div>
           <p className="relative z-10 text-base font-extrabold text-slate-900 dark:text-white truncate">
-            {topCategory ? topCategory[0] : '-'}
+            {topCategory ? topCategory[0] : "-"}
           </p>
           <p className="relative z-10 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            {topCategory ? `${topCategory[1]} Kutipan` : 'Belum Ada Data'}
+            {topCategory ? `${topCategory[1]} Kutipan` : "Belum Ada Data"}
           </p>
 
           <div className="absolute inset-x-0 bottom-0 h-9 pointer-events-none opacity-25 group-hover:opacity-50 transition-opacity">
             <svg className="w-full h-full" viewBox="0 0 100 35" preserveAspectRatio="none">
               <defs>
-                <linearGradient id="amberGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                <linearGradient id="skyGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
-              <path d="M0 22 C20 28, 40 16, 60 22, 80 12, 100 18 L100 35 L0 35 Z" fill="url(#amberGradient)" />
-              <path d="M0 22 C20 28, 40 16, 60 22, 80 12, 100 18" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M0 22 C20 28, 40 16, 60 22, 80 12, 100 18 L100 35 L0 35 Z"
+                fill="url(#skyGradient)"
+              />
+              <path
+                d="M0 22 C20 28, 40 16, 60 22, 80 12, 100 18"
+                fill="none"
+                stroke="#0ea5e9"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
         </div>
-
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
         {/* Visual Bar Chart */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
@@ -196,7 +236,7 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                     <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.max(percentage, 8)}%` }}
+                        style={{width: `${Math.max(percentage, 8)}%`}}
                       />
                     </div>
                   </div>
@@ -228,10 +268,7 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                   <div key={catName} className="space-y-1">
                     <div className="flex items-center justify-between text-xs font-medium text-slate-700 dark:text-slate-300">
                       <div className="flex items-center gap-2">
-                        <div
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: color }}
-                        />
+                        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{backgroundColor: color}} />
                         <span className="font-bold text-slate-900 dark:text-white">{catName}</span>
                       </div>
                       <span className="font-mono text-slate-500 dark:text-slate-400">
@@ -243,7 +280,7 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
                         className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${percentage}%`,
-                          backgroundColor: color
+                          backgroundColor: color,
                         }}
                       />
                     </div>
@@ -253,14 +290,13 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
             </div>
           )}
         </div>
-
       </div>
 
       {/* Highlight Card */}
       {topQuote && (
         <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 text-white shadow-lg space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-rose-200 uppercase tracking-wider">
               <Flame className="w-4 h-4" />
               <span>Kutipan Paling Populer</span>
             </div>
@@ -275,12 +311,9 @@ export default function ProfileAnalytics({ quotes }: ProfileAnalyticsProps) {
 
           <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
             <span className="text-indigo-200 font-mono">
-              {topQuote.category?.name ? `Kategori: ${topQuote.category.name}` : ''}
+              {topQuote.category?.name ? `Kategori: ${topQuote.category.name}` : ""}
             </span>
-            <Link
-              href={`/quotes/${topQuote.id}`}
-              className="text-white font-semibold hover:underline"
-            >
+            <Link href={`/quotes/${topQuote.id}`} className="text-white font-semibold hover:underline">
               Lihat Rincian →
             </Link>
           </div>

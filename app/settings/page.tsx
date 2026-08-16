@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { UserProfile } from '@/types';
-import { Settings, KeyRound, Bell, ShieldCheck, UserCheck, Check, Lock, Save } from 'lucide-react';
+import { Settings, KeyRound, Bell, Check, Lock, Save } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -14,14 +14,12 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
 
   // Change Password Form State
-  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
   // Preference Toggles
   const [emailNotifs, setEmailNotifs] = useState(true);
-  const [soundNotifs, setSoundNotifs] = useState(true);
   const [publicProfile, setPublicProfile] = useState(true);
 
   useEffect(() => {
@@ -66,11 +64,11 @@ export default function SettingsPage() {
       if (error) throw error;
 
       toast.success('Kata sandi berhasil diperbarui!');
-      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err: any) {
-      toast.error(err.message || 'Gagal mengubah kata sandi');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengubah kata sandi';
+      toast.error(message);
     } finally {
       setPasswordSubmitting(false);
     }

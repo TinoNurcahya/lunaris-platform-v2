@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { createClient } from "@/utils/supabase/server";
 import { Profile } from "@/types";
 import { JsonLd } from "@/components/seo/JsonLd";
+import AuditTracker from "@/components/audit/AuditTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -313,7 +314,7 @@ export default async function RootLayout({
         profile = data as Profile;
       }
     }
-  } catch (err) {
+  } catch {
     // Supabase credentials fallback for dev
   }
 
@@ -325,6 +326,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-600 selection:text-white font-sans transition-colors duration-200">
         <JsonLd data={websiteSchema} />
         <ThemeProvider>
+          <AuditTracker />
           <ToasterProvider />
           <Navbar profile={profile} />
 
