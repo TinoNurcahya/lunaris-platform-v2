@@ -28,20 +28,26 @@ export async function POST(request: NextRequest) {
     const vercelCountry = request.headers.get('x-vercel-ip-country');
 
     if (vercelCity && vercelCountry) {
-      location = `${decodeURIComponent(vercelCity)}, ${vercelCountry}`;
+      const vercelRegion = request.headers.get('x-vercel-ip-country-region');
+      location = vercelRegion
+        ? `${decodeURIComponent(vercelCity)}, ${vercelRegion}, ${vercelCountry}`
+        : `${decodeURIComponent(vercelCity)}, ${vercelCountry}`;
     } else if (ipAddress !== '127.0.0.1' && ipAddress !== 'localhost') {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1500);
-        const geoRes = await fetch(`http://ip-api.com/json/${ipAddress}?fields=status,country,city`, {
-          signal: controller.signal,
-        });
+        const geoRes = await fetch(
+          `http://ip-api.com/json/${ipAddress}?fields=status,country,regionName,city,zip,isp,lat,lon`,
+          { signal: controller.signal }
+        );
         clearTimeout(timeoutId);
 
         if (geoRes.ok) {
           const geoData = await geoRes.json();
-          if (geoData.status === 'success' && (geoData.city || geoData.country)) {
-            location = `${geoData.city || 'Unknown City'}, ${geoData.country || 'Unknown Country'}`;
+          if (geoData.status === 'success') {
+            const cityRegion = [geoData.city, geoData.regionName, geoData.country].filter(Boolean).join(', ');
+            const ispStr = geoData.isp ? ` (${geoData.isp})` : '';
+            location = `${cityRegion}${ispStr}`;
           }
         }
       } catch {
