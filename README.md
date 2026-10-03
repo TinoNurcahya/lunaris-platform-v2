@@ -20,7 +20,6 @@
     <img src="https://img.shields.io/badge/framer%20motion-%23E040FB.svg?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion">
     <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
     <br>
-    <img src="https://img.shields.io/badge/license-Private-red?style=for-the-badge" alt="License">
     <img src="https://komarev.com/ghpvc/?username=lunarys-platform&label=Kunjungan%20Proyek&color=6366f1&style=flat-square" alt="Views">
   </p>
 </div>
