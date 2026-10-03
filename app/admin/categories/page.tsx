@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {createClient} from "@/utils/supabase/client";
 import {Category} from "@/types";
 import {
-  Sparkles,
+  Tag,
   Heart,
   Compass,
   Flame,
@@ -16,7 +16,6 @@ import {
   Moon,
   Feather,
   Smile,
-  Tag,
   Globe,
   Star,
   Plus,
@@ -31,7 +30,7 @@ import Link from "next/link";
 import {toast} from "sonner";
 
 const ICON_LIST = [
-  {name: "Sparkles", icon: Sparkles},
+  {name: "Tag", icon: Tag},
   {name: "Heart", icon: Heart},
   {name: "Compass", icon: Compass},
   {name: "Flame", icon: Flame},
@@ -43,7 +42,6 @@ const ICON_LIST = [
   {name: "Moon", icon: Moon},
   {name: "Feather", icon: Feather},
   {name: "Smile", icon: Smile},
-  {name: "Tag", icon: Tag},
   {name: "Globe", icon: Globe},
   {name: "Star", icon: Star},
 ];
@@ -93,7 +91,7 @@ export default function AdminCategoriesPage() {
   // Form State
   const [catName, setCatName] = useState("");
   const [catSlug, setCatSlug] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("Sparkles");
+  const [selectedIcon, setSelectedIcon] = useState("Tag");
   const [selectedColor, setSelectedColor] = useState("Indigo");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -158,7 +156,7 @@ export default function AdminCategoriesPage() {
     setEditingCatId(null);
     setCatName("");
     setCatSlug("");
-    setSelectedIcon("Sparkles");
+    setSelectedIcon("Tag");
     setSelectedColor("Indigo");
   };
 
@@ -166,7 +164,7 @@ export default function AdminCategoriesPage() {
     setEditingCatId(cat.id);
     setCatName(cat.name);
     setCatSlug(cat.slug);
-    setSelectedIcon(cat.icon || "Sparkles");
+    setSelectedIcon(cat.icon && cat.icon !== "Sparkles" ? cat.icon : "Tag");
     setSelectedColor(normalizeCategoryColor(cat.color));
   };
 
