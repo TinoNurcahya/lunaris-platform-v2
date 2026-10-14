@@ -36,6 +36,7 @@
 - [Instalasi & Setup](#instalasi--setup)
 - [Menjalankan Aplikasi](#menjalankan-aplikasi)
 - [Perintah Umum](#perintah-umum)
+- [Otomasi Keep-Alive Supabase](#otomasi-keep-alive-supabase-mencegah-auto-pause-free-tier)
 - [Variabel Environment](#variabel-environment)
 - [Arsitektur Aplikasi](#arsitektur-aplikasi)
 - [Halaman & Rute](#halaman--rute)
@@ -341,6 +342,19 @@ npm run start
 | `npm run start` | Serve production build |
 | `npm run lint` | Jalankan ESLint (harus 0 error sebelum commit) |
 | `npx tsc --noEmit` | Type-check TypeScript (harus 0 error) |
+| `npm run test:supabase` | Uji konektivitas dan kesehatan tabel Supabase |
+
+---
+
+## Otomasi Keep-Alive Supabase (Mencegah Auto-Pause Free Tier)
+
+Pada paket **Free Tier Supabase**, proyek akan dinonaktifkan (*paused*) otomatis jika tidak menerima query/aktivitas selama 7 hari berturut-turut. Untuk menjaga database Lunarys selalu aktif tanpa intervensi manual, repositori ini dilengkapi otomasi **GitHub Actions Scheduled Cron**:
+
+- **Workflow File**: [`.github/workflows/keep-alive.yml`](.github/workflows/keep-alive.yml)
+- **Jadwal Eksekusi**: Berjalan otomatis setiap 3 hari sekali pada pukul 04:00 UTC (`0 4 */3 * *`).
+- **Mekanisme Kerja**: Workflow memanggil endpoint kesehatan aplikasi [`/api/health`](app/api/health/route.ts). Endpoint tersebut mengeksekusi query database ke tabel `categories` Supabase, sehingga *inactivity timer* 7 hari Supabase otomatis ter-reset.
+- **Manual Trigger**: Dapat dijalankan manual sewaktu-waktu melalui tab **Actions** di GitHub (*Run workflow*).
+- **Environment Kustom**: Endpoint target dapat disesuaikan melalui GitHub Secret `HEALTH_CHECK_URL` (default otomatis: `https://lunarys-platform.vercel.app/api/health`).
 
 ---
 
