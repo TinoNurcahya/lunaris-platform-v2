@@ -7,13 +7,16 @@ on:
   workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   keep-alive:
     name: Ping Health Check & Keep Database Active
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Ping Lunarys Health Endpoint
         env:
           TARGET_URL: ${{ secrets.HEALTH_CHECK_URL || 'https://lunarys-platform.vercel.app/api/health' }}
@@ -36,3 +39,6 @@ jobs:
           else
             echo "::warning::Health endpoint responded 200, but status was not 'ok'."
           fi
+
+      - name: Keep GitHub Actions Active (Bypass 60-day inactivity limit)
+        uses: gautamkrishnar/keepalive-workflow@v2
