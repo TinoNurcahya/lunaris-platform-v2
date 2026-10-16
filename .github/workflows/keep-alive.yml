@@ -40,5 +40,25 @@ jobs:
             echo "::warning::Health endpoint responded 200, but status was not 'ok'."
           fi
 
-      - name: Keep GitHub Actions Active (Bypass 60-day inactivity limit)
-        uses: gautamkrishnar/keepalive-workflow@v2
+      - name: Prevent GitHub Actions Scheduled Workflow Inactivity Pause
+        run: |
+          # GitHub disables scheduled workflows after 60 days of repository inactivity (no commits).
+          # If the last commit is older than 45 days, create a lightweight keepalive commit.
+          LAST_COMMIT_DATE=$(git log -1 --format=%ct)
+          CURRENT_DATE=$(date +%s)
+          DAYS_ELAPSED=$(( (CURRENT_DATE - LAST_COMMIT_DATE) / 86400 ))
+
+          echo "Days since last commit: $DAYS_ELAPSED"
+
+          if [ "$DAYS_ELAPSED" -ge 45 ]; then
+            echo "Repository has been inactive for $DAYS_ELAPSED days. Creating keepalive commit to maintain cron schedule..."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/keepalive.txt
+            git add .github/keepalive.txt
+            git commit -m "chore: prevent scheduled workflow auto-pause [skip ci]"
+            git push || echo "::warning::Unable to push keepalive commit. Please verify workflow write permissions in repository settings."
+          else
+            echo "Repository active within the last 45 days. No keepalive commit needed."
+          fi
+
